@@ -1,0 +1,9 @@
+package flat/writer
+
+import flat/io
+
+class implements OutputStream {
+  override public write(String value = "") => this {
+    Console.log("writing: #{value}")
+  }
+}
