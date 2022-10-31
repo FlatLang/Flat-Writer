@@ -1,9 +1,18 @@
 package flat/writer
 
+import flat/compiler/models
 import flat/io
 
-class implements OutputStream {
-  override public write(String value = "") => this {
+class {
+  public write(String value = "") {
     Console.log("writing: #{value}")
+  }
+
+  public write(Token token) {
+    Console.log("writing: #{token}")
+  }
+
+  public write(Token[] tokens) {
+    Console.log("writing: #{tokens}")
   }
 }
