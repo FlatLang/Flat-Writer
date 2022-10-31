@@ -1,0 +1,10 @@
+package flat/writer
+
+import flat/ast
+import flat/parser/matchers
+
+abstract data class {
+  visible TokenPattern pattern
+
+  abstract public write(Node node, WriterOutputStream output)
+}

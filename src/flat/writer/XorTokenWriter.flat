@@ -1,0 +1,11 @@
+package flat/writer
+
+import flat/ast
+import flat/parser/matchers
+
+data class extends TokenWriter {
+  XorTokenPattern pattern
+
+  override public write(Node node, WriterOutputStream output) {
+  }
+}

@@ -1,0 +1,13 @@
+package flat/writer
+
+import flat/parser/matchers
+
+extension class {
+  public getWriter(CaptureTokenPattern this) => CaptureTokenWriter(this)
+  public getWriter(GroupTokenPattern this) => GroupTokenWriter(this)
+  public getWriter(NodeGroupTokenPattern this) => NodeGroupTokenWriter(this)
+  public getWriter(NodeTokenPattern this) => NodeTokenWriter(this)
+  public getWriter(PreconditionTokenPattern this) => PreconditionTokenWriter(this)
+  public getWriter(SingleTokenPattern this) => SingleTokenWriter(this)
+  public getWriter(XorTokenPattern this) => XorTokenWriter(this)
+}
