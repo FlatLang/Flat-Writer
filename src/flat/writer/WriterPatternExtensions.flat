@@ -10,4 +10,15 @@ extension class {
   public getWriter(PreconditionTokenPattern this) => PreconditionTokenWriter(this)
   public getWriter(SingleTokenPattern this) => SingleTokenWriter(this)
   public getWriter(XorTokenPattern this) => XorTokenWriter(this)
+  public getWriter(TokenPattern this) -> TokenWriter {
+    match this.class {
+      CaptureTokenPattern.class => return ((CaptureTokenPattern)this).getWriter()
+      GroupTokenPattern.class => return ((GroupTokenPattern)this).getWriter()
+      NodeGroupTokenPattern.class => return ((NodeGroupTokenPattern)this).getWriter()
+      NodeTokenPattern.class => return ((NodeTokenPattern)this).getWriter()
+      PreconditionTokenPattern.class => return ((PreconditionTokenPattern)this).getWriter()
+      SingleTokenPattern.class => return ((SingleTokenPattern)this).getWriter()
+      XorTokenPattern.class => return ((XorTokenPattern)this).getWriter()
+    }
+  }
 }
