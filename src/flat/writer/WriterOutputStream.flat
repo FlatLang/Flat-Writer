@@ -5,14 +5,14 @@ import flat/io
 
 class {
   public write(String value = "") {
-    Console.log("writing: #{value}")
+    Console.log("writing string: #{value}")
   }
 
   public write(Token token) {
-    Console.log("writing: #{token}")
+    Console.log("writing token: #{token}")
   }
 
   public write(Token[] tokens) {
-    Console.log("writing: #{tokens}")
+    Console.log("writing tokens: #{tokens}")
   }
 }
