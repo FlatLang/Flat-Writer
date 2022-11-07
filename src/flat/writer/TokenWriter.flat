@@ -6,5 +6,5 @@ import flat/parser/matchers
 abstract data class {
   visible TokenPattern pattern
 
-  abstract public write(Node node, WriterOutputStream output)
+  abstract public write(WriterOutputStream output, Node node)
 }
