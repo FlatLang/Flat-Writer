@@ -2,10 +2,62 @@ package flat/writer
 
 import flat/ast
 import flat/parser/matchers
+import flat/log
+
+import flat/writer/WriterPatternExtensions
+
+import static flat/colorizer/Colorizer
 
 data class extends TokenWriter {
-  SingleTokenPattern pattern
+  static Logger log = Logger(GroupTokenWriter.class)
+
+  GroupTokenPattern pattern
+
+  var Bool wasRepeat = false
+  var TokenWriter writer
+
+  lazy ArrayIterator<TokenWriter> iterator => pattern.patterns.map({ _.getWriter() }).iterator
+
+  hasNextWriter() -> Bool {
+    return iterator.hasNext
+  }
+
+  nextWriter() {
+    writer = iterator.stepNext
+    wasRepeat = false
+  }
+
+  repeatWriter() {
+    log.traceFunc({"Repeating writer: " + magenta(writer.pattern.toPatternString())})
+    writer = writer.pattern.getWriter()
+    wasRepeat = true
+  }
 
   override public write(WriterOutputStream output, Node node) {
+    if (exhausted) return
+    if (!writer) {
+      if (hasNextWriter()) {
+        nextWriter()
+      } else {
+        log.traceFunc({"No more writers. Exhausted"})
+        exhausted = true
+        return
+      }
+    }
+
+    innerWrite(output, node)
+  }
+
+  innerWrite(WriterOutputStream output, Node node) {
+    writer.write(output, node)
+
+    if (writer.exhausted) {
+      if (hasNextWriter()) {
+        nextWriter()
+        innerWrite(output, node)
+      } else {
+        exhausted = true
+      }
+    }
   }
 }

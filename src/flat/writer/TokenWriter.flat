@@ -6,5 +6,8 @@ import flat/parser/matchers
 abstract data class {
   visible TokenPattern pattern
 
+  var Bool _exhausted = false
+  visible var Bool exhausted <=> _exhausted
+
   abstract public write(WriterOutputStream output, Node node)
 }

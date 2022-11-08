@@ -8,8 +8,12 @@ data class extends TokenWriter {
   SingleTokenPattern pattern
 
   override public write(WriterOutputStream output, Node node) {
-    if (pattern.field) {
-      if (let nodeField = node.class.getField(pattern.field, true)) {
+    innerWrite(output, node)
+  }
+
+  innerWrite(WriterOutputStream output, Node node) {
+    if (let field = pattern.field) {
+      if (let nodeField = node.class.getField(field, true)) {
         if (let value = nodeField.getValue(node)) {
           match value.class {
             Token.class => output.write((Token)value)
@@ -18,12 +22,15 @@ data class extends TokenWriter {
           }
         }
       } else {
-        throw Exception("Invalid field '#{pattern.field}' for Node type '#{node.class.name}'")
+        // throw Exception("Invalid field '#{field}' for Node type '#{node.class.name}'")
       }
     } else if (pattern.value) {
       output.write(Token(type: pattern.type, value: pattern.value))
     } else {
-      throw Exception("Unable to determine token to write for pattern '#{pattern.toPatternString()}'")
+      output.write("{{#{pattern.label}}}")
+      // throw Exception("Unable to determine token to write for pattern '#{pattern.toPatternString()}'")
     }
+
+    exhausted = true
   }
 }
