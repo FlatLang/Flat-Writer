@@ -11,5 +11,6 @@ data class extends TokenWriter {
   }
 
   innerWrite(WriterOutputStream output, Node node) {
+    exhausted = true
   }
 }
