@@ -1,7 +1,92 @@
 package flat/writer
 
+import flat/ast
+import flat/parser
+import flat/parser/matchers
 import flat/eventstream
+import flat/datastruct/list
+import flat/log
+
+import flat/writer/WriterPatternExtensions
+
+import static flat/colorizer/Colorizer
 
 abstract class {
-  public abstract write(EventStream nodeStream) -> EventStream
+  static Logger log = Logger(Writer.class)
+
+  Stack<TokenWriter> writers = Stack()
+
+  public write(EventStream nodeStream) -> EventStream {
+    let outputStream = WriterOutputStream()
+    var Node lastNode = null
+    var ParserBase lastParser = null
+    var Int lastCount = 0
+
+    return EventStream(true).on("start", (data, stream) => {
+      nodeStream.on<NodeResult>("data", (nodeResult) => {
+        Writer.log.traceFunc({"Received data from NodeResult EventStream: #{nodeResult.node}"})
+
+        let pattern = getPattern(nodeResult.node.class)
+        let writer = pattern.getWriter()
+
+        Writer.log.infoFunc({"Pattern: #{magenta(pattern.toPatternString())}"})
+
+        writer.write(outputStream, nodeResult.node)
+
+        let count = nodeResult.context.parserStack.count
+
+        if (count > lastCount) {
+          Writer.log.infoFunc({"|
+            #{underscore("Encountered child")}:
+              writers.count: #{writers.count}
+              node: #{cyan(nodeResult.node.class.name)}
+              parent: #{magenta(writers.peek()?.pattern.toPatternString())}
+              exhausted: #{writer.exhausted}
+              parserStack: [#{nodeResult.context.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
+            |"})
+        } else if (count < lastCount) {
+          Writer.log.infoFunc({"|
+            #{underscore("Encountered parent")}:
+              writers.count: #{writers.count}
+              node: #{cyan(nodeResult.node.class.name)}
+              parent: #{magenta(writers.peek()?.pattern.toPatternString())}
+              exhausted: #{writer.exhausted}
+              parserStack: [#{nodeResult.context.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
+            |"})
+          if (writers.isNotEmpty) {
+            writers.pop()
+          }
+        } else {
+          Writer.log.infoFunc({"|
+            #{underscore("Encountered sibling")}:
+              writers.count: #{writers.count}
+              node: #{cyan(nodeResult.node.class.name)}
+              parent: #{magenta(writers.peek()?.pattern.toPatternString())}
+              exhausted: #{writer.exhausted}
+              parserStack: [#{nodeResult.context.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
+            |"})
+        }
+
+        if (!writer.exhausted) {
+          writers.push(writer)
+        }
+
+        lastNode = nodeResult.node
+        lastParser = nodeResult.context.currentParser
+        lastCount = count
+      })
+
+      nodeStream.on<String>("error", (error) => {
+        Writer.log.traceFunc({"Received error from NodeResult EventStream: #{error}"})
+        stream.emit("error", error)
+      })
+
+      nodeStream.on("close", {
+        Writer.log.traceFunc({"NodeResult EventStream closed"})
+        stream.emit("close")
+      })
+    })
+  }
+
+  public abstract getPattern(Class<Node> nodeType) -> TokenPattern
 }
