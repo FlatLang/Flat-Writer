@@ -2,14 +2,36 @@ package flat/writer
 
 import flat/ast
 import flat/parser/matchers
+import flat/log
+
+import flat/writer/WriterPatternExtensions
+
+import static flat/colorizer/Colorizer
 
 data class extends TokenWriter {
+  static Logger log = Logger(XorTokenWriter.class)
+
   XorTokenPattern pattern
 
+  var TokenWriter writer
+
   override public write(WriterOutputStream output, Node node) {
+    if (!writer) {
+      writer = pattern.patterns.firstWhere({ _.getNodeType() == node.class })?.getWriter()
+
+      if (!writer) {
+        log.traceFunc({"Unable to determine writer for Xor pattern. Exhausted"})
+        exhausted = true
+        return
+      }
+    }
+
     innerWrite(output, node)
   }
 
   innerWrite(WriterOutputStream output, Node node) {
+    writer.write(output, node)
+
+    exhausted = writer.exhausted
   }
 }
