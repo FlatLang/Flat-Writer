@@ -7,15 +7,20 @@ import flat/log
 class {
   static Logger log = Logger(WriterOutputStream.class)
 
-  public write(String value = "") {
+  visible var String output = ""
+
+  public writeString(String value = "") {
     log.info("writing string: #{value}")
+    output += value + " "
   }
 
-  public write(Token token) {
+  public writeToken(Token token) {
     log.info("writing token: #{token}")
+    output += token.value + " "
   }
 
-  public write(Token[] tokens) {
+  public writeTokens(Token[] tokens) {
     log.info("writing tokens: #{tokens}")
+    output += tokens.map({ _.value }).stitch(" ")
   }
 }

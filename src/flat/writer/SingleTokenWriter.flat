@@ -16,18 +16,18 @@ data class extends TokenWriter {
       if (let nodeField = node.class.getField(field, true)) {
         if (let value = nodeField.getValue(node)) {
           match value.class {
-            Token.class => output.write((Token)value)
-            Array.class => output.write((Token[])value)
-            default => output.write(value.toString())
+            Token.class => output.writeToken((Token)value)
+            Array.class => output.writeTokens((Array)value)
+            default => output.writeString(value.toString())
           }
         }
       } else {
         // throw Exception("Invalid field '#{field}' for Node type '#{node.class.name}'")
       }
     } else if (pattern.value) {
-      output.write(Token(type: pattern.type, value: pattern.value))
+      output.writeToken(Token(type: pattern.type, value: pattern.value))
     } else {
-      output.write("{{#{pattern.label}}}")
+      output.writeString("{{#{pattern.label}}}")
       // throw Exception("Unable to determine token to write for pattern '#{pattern.toPatternString()}'")
     }
 
