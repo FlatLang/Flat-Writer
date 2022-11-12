@@ -1,0 +1,52 @@
+package flat/writer
+
+import flat/ast
+import flat/parser
+import flat/parser/flat
+import flat/parser/matchers
+import flat/compiler/models
+import flat/writer/TestOutputStream_Test.TestOutputStream
+
+testable class {
+  test `can write node group containing single node type`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      IdentifierParser()
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+
+    expect(outputStream.output).toBe("<test>")
+    expect(writer.exhausted).toBe(false)
+  }
+
+  test `can write node group containing single node type twice`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      IdentifierParser()
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test2")))
+
+    expect(outputStream.output).toBe("<test><test2>")
+    expect(writer.exhausted).toBe(false)
+  }
+
+  test `can write node group containing two node types`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      IdentifierParser(),
+      AssignmentParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, AssignmentNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test2")))
+
+    expect(outputStream.output).toBe("<=><test2>")
+    expect(writer.exhausted).toBe(false)
+  }
+}

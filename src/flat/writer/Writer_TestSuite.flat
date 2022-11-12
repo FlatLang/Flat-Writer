@@ -9,7 +9,8 @@ import flat/writer/Writer
 [TestSuite [
   Writer_Test,
   SingleTokenWriter_Test,
-  GroupTokenWriter_Test
+  GroupTokenWriter_Test,
+  NodeGroupTokenWriter_Test
 ]]
 class {
   public static async main(String[] args) {
