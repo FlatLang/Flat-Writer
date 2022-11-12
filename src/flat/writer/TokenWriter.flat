@@ -13,7 +13,7 @@ abstract data class {
 
   public validNode(Node node) => pattern.getNodeType() != Node.class && node.class.isOfType(pattern.getNodeType())
 
-  public consumesNode() => false
+  public consumesNode() => pattern.getNodeType() != Node.class
 
   public reset() {
     _exhausted = false
