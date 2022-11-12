@@ -43,10 +43,9 @@ data class extends TokenWriter {
 
   override public validNode(Node node) -> Bool {
     if (super.validNode(node)) return true
+    if (currentWriter == null && pattern.getNodeType() != Node.class) return false
     if (currentWriter == null && !hasNextWriter()) return false
     if (currentWriter == null) nextWriter()
-    if (currentWriter.validNode(node)) return true
-    if (!hasNextWriter()) return false
 
     log.infoFunc({"|
       Checking node type #{green(node.class.name)} against writer #{magenta(currentWriter.pattern.toPatternString())}
