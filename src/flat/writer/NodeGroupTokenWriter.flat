@@ -22,6 +22,8 @@ data class extends TokenWriter {
     if (currentWriter == null) searchCurrentWriter(node)
     if (super.validNode(node)) return true
 
+    log.infoFunc({"Checking node type #{green(node.class.name)} against writer #{magenta(currentWriter?.pattern.toPatternString())}"})
+
     Logger.increaseTab()
     let valid = currentWriter?.validNode(node)
     Logger.decreaseTab()
