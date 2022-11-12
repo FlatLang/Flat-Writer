@@ -14,75 +14,30 @@ import static flat/colorizer/Colorizer
 abstract class {
   static Logger log = Logger(Writer.class)
 
-  Stack<TokenWriter> writers = Stack()
-
-  public write(EventStream nodeStream) -> EventStream {
+  public write(EventStream nodeStream, TokenWriter rootWriter) -> EventStream {
     let outputStream = WriterOutputStream()
-    var Node lastNode = null
-    var ParserBase lastParser = null
-    var Int lastCount = 0
 
     return EventStream(true).on("start", (data, stream) => {
       nodeStream.on<NodeResult>("data", (nodeResult) => {
-        Writer.log.traceFunc({"Received data from NodeResult EventStream: #{nodeResult.node}"})
+        log.traceFunc({"Received data from NodeResult EventStream: #{nodeResult.node}"})
 
-        let pattern = getPattern(nodeResult.node.class)
-        let writer = pattern.getWriter()
+        log.infoFunc({"|
+          #{underscore("Encountered node")}:
+            node: #{cyan(nodeResult.node.class.name)}
+            exhausted: #{rootWriter.exhausted}
+            parserStack: [#{nodeResult.context.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
+          |"})
 
-        Writer.log.infoFunc({"Pattern: #{magenta(pattern.toPatternString())}"})
-
-        writer.write(outputStream, nodeResult.node)
-
-        let count = nodeResult.context.parserStack.count
-
-        if (count > lastCount) {
-          Writer.log.infoFunc({"|
-            #{underscore("Encountered child")}:
-              writers.count: #{writers.count}
-              node: #{cyan(nodeResult.node.class.name)}
-              parent: #{magenta(writers.peek()?.pattern.toPatternString())}
-              exhausted: #{writer.exhausted}
-              parserStack: [#{nodeResult.context.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
-            |"})
-        } else if (count < lastCount) {
-          Writer.log.infoFunc({"|
-            #{underscore("Encountered parent")}:
-              writers.count: #{writers.count}
-              node: #{cyan(nodeResult.node.class.name)}
-              parent: #{magenta(writers.peek()?.pattern.toPatternString())}
-              exhausted: #{writer.exhausted}
-              parserStack: [#{nodeResult.context.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
-            |"})
-          if (writers.isNotEmpty) {
-            writers.pop()
-          }
-        } else {
-          Writer.log.infoFunc({"|
-            #{underscore("Encountered sibling")}:
-              writers.count: #{writers.count}
-              node: #{cyan(nodeResult.node.class.name)}
-              parent: #{magenta(writers.peek()?.pattern.toPatternString())}
-              exhausted: #{writer.exhausted}
-              parserStack: [#{nodeResult.context.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
-            |"})
-        }
-
-        if (!writer.exhausted) {
-          writers.push(writer)
-        }
-
-        lastNode = nodeResult.node
-        lastParser = nodeResult.context.currentParser
-        lastCount = count
+        rootWriter.write(outputStream, nodeResult.node)
       })
 
       nodeStream.on<String>("error", (error) => {
-        Writer.log.traceFunc({"Received error from NodeResult EventStream: #{error}"})
+        log.traceFunc({"Received error from NodeResult EventStream: #{error}"})
         stream.emit("error", error)
       })
 
       nodeStream.on("close", {
-        Writer.log.traceFunc({"NodeResult EventStream closed"})
+        log.traceFunc({"NodeResult EventStream closed"})
         stream.emit("close")
       })
     })

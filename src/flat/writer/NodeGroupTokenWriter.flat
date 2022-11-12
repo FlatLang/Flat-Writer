@@ -1,15 +1,94 @@
 package flat/writer
 
 import flat/ast
+import flat/datastruct
 import flat/parser/matchers
+import flat/log
+
+import flat/writer/WriterPatternExtensions
+
+import static flat/colorizer/Colorizer
 
 data class extends TokenWriter {
+  static Logger log = Logger(NodeGroupTokenWriter.class)
+
   NodeGroupTokenPattern pattern
 
+  HashMap<Class<Node>, TokenWriter> writerMap = HashMap()
+
+  var TokenWriter currentWriter
+
+  override public validNode(Node node) -> Bool {
+    if (currentWriter == null) searchCurrentWriter(node)
+    if (super.validNode(node)) return true
+
+    return currentWriter?.validNode(node)
+  }
+
+  override public consumesNode() => true
+
+  searchCurrentWriter(Node node) {
+    if (writerMap.isEmpty) {
+      pattern.parsers.forEach({
+        let pattern = _.pattern
+        let writer = pattern.getWriter()
+
+        if (pattern.getNodeType() == Node.class) {
+          log.warnFunc({"Could not get node type for pattern #{magenta(pattern.toPatternString())}"})
+          return
+        }
+
+        writerMap[pattern.getNodeType()] = writer
+      })
+    }
+
+    log.infoFunc({"Searching for writer for node type #{green(node.class.name)} against writers: #{writerMap.keys.map(c => green(c.name)).join(", ")}"})
+    currentWriter = writerMap[node.class]
+
+    if (!currentWriter) {
+      log.infoFunc({"Did not find exact writer. Searching for isOfType"})
+      currentWriter = writerMap.firstWhere({ node.class.isOfType(_.key) })?.value
+
+      if (!currentWriter) {
+        log.infoFunc({"Could not get writer for node type #{green(node.class.name)}"})
+      } else {
+        log.infoFunc({"Got writer from isOfType #{green(writerMap.firstWhere(w => node.class.isOfType(w.key)).key.name)}"})
+      }
+    }
+  }
+
   override public write(WriterOutputStream output, Node node) {
+    if (currentWriter) {
+      if (!currentWriter.validNode(node)) {
+        log.infoFunc({"Node #{green(node.class.name)} is not valid for writer. Resetting current writer"})
+        currentWriter = null
+      }
+    }
+    if (!currentWriter) {
+      searchCurrentWriter(node)
+
+      if (!currentWriter) {
+        return
+      }
+    }
+
     innerWrite(output, node)
   }
 
   innerWrite(WriterOutputStream output, Node node) {
+    log.infoFunc({"|
+      Writing node #{green(node.class.name)} to writer #{green(currentWriter.class.name)}
+        pattern: #{magenta(currentWriter.pattern.toPatternString())}
+      |"})
+    Logger.increaseTab()
+    currentWriter.write(output, node)
+    Logger.decreaseTab()
+
+    if (currentWriter.exhausted) {
+      currentWriter = null
+      log.infoFunc({"Writer is exhausted"})
+    } else {
+      log.infoFunc({"Writer is not exhausted"})
+    }
   }
 }

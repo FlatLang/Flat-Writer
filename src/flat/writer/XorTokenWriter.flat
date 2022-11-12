@@ -15,12 +15,16 @@ data class extends TokenWriter {
 
   var TokenWriter writer
 
+  override public validNode(Node node) => writer != null ? writer.validNode(node) : super.validNode(node)
+
+  override public consumesNode() => writer.consumesNode()
+
   override public write(WriterOutputStream output, Node node) {
     if (!writer) {
       writer = pattern.patterns.firstWhere({ _.getNodeType() == node.class })?.getWriter()
 
       if (!writer) {
-        log.traceFunc({"Unable to determine writer for Xor pattern. Exhausted"})
+        log.traceFunc({"Unable to determine writer for Xor pattern for node type #{green(node.class.name)}. Exhausted"})
         exhausted = true
         return
       }

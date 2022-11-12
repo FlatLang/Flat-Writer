@@ -14,28 +14,57 @@ data class extends TokenWriter {
   GroupTokenPattern pattern
 
   var Bool wasRepeat = false
-  var TokenWriter writer
+  var TokenWriter currentWriter
+  var Node parentNode
 
   lazy ArrayIterator<TokenWriter> iterator => pattern.patterns.map({ _.getWriter() }).iterator
+
+  override public consumesNode() -> Bool {
+    if (currentWriter == null && !hasNextWriter()) return false
+    if (currentWriter == null) nextWriter()
+
+    return currentWriter.consumesNode()
+  }
 
   hasNextWriter() -> Bool {
     return iterator.hasNext
   }
 
   nextWriter() {
-    writer = iterator.stepNext
+    currentWriter = iterator.stepNext
     wasRepeat = false
   }
 
   repeatWriter() {
-    log.traceFunc({"Repeating writer: " + magenta(writer.pattern.toPatternString())})
-    writer = writer.pattern.getWriter()
+    log.traceFunc({"Repeating currentWriter: " + magenta(currentWriter.pattern.toPatternString())})
+    currentWriter = currentWriter.pattern.getWriter()
     wasRepeat = true
+  }
+
+  override public validNode(Node node) -> Bool {
+    if (super.validNode(node)) return true
+    if (currentWriter == null && !hasNextWriter()) return false
+    if (currentWriter == null) nextWriter()
+    if (currentWriter.validNode(node)) return true
+    if (!hasNextWriter()) return false
+
+    nextWriter()
+    log.infoFunc({"Node #{green(node.class.name)} is not valid for current writer. Checking nextWriter #{magenta(currentWriter.pattern.toPatternString())}"})
+
+    if (validNode(node)) {
+      currentWriter.reset()
+      log.infoFunc({"Found valid writer for node #{magenta(currentWriter.pattern.toPatternString())}"})
+
+      return true
+    } else {
+      exhausted = true
+      return false
+    }
   }
 
   override public write(WriterOutputStream output, Node node) {
     if (exhausted) return
-    if (!writer) {
+    if (!currentWriter) {
       if (hasNextWriter()) {
         nextWriter()
       } else {
@@ -49,14 +78,49 @@ data class extends TokenWriter {
   }
 
   innerWrite(WriterOutputStream output, Node node) {
-    writer.write(output, node)
+    while (!currentWriter.consumesNode()) {
+      Logger.increaseTab()
+      currentWriter.write(output, node)
+      Logger.decreaseTab()
 
-    if (writer.exhausted) {
+      if (!currentWriter.exhausted || !hasNextWriter()) {
+        return
+      }
+
+      nextWriter()
+    }
+
+    if (!currentWriter.validNode(node)) {
+      parentNode = node
+      log.infoFunc({"|
+        Node #{green(node.class.name)} is not valid for current writer #{green(currentWriter.class.name)}. Awaiting child node
+          pattern: #{magenta(currentWriter.pattern.toPatternString())}
+        |"})
+      return
+    }
+
+    log.infoFunc({"|
+      Writing node #{green(node.class.name)} to currentWriter #{green(currentWriter.class.name)}
+        pattern: #{magenta(currentWriter.pattern.toPatternString())}
+      |"})
+    Logger.increaseTab()
+    currentWriter.write(output, node)
+    Logger.decreaseTab()
+
+    if (currentWriter.exhausted) {
       if (hasNextWriter()) {
         nextWriter()
       } else {
         exhausted = true
       }
     }
+  }
+
+  reset() {
+    super.reset()
+
+    wasRepeat = false
+    currentWriter = null
+    iterator.reset()
   }
 }

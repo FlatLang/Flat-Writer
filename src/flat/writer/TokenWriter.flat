@@ -10,4 +10,12 @@ abstract data class {
   visible var Bool exhausted <=> _exhausted
 
   abstract public write(WriterOutputStream output, Node node)
+
+  public validNode(Node node) => pattern.getNodeType() != Node.class && node.class.isOfType(pattern.getNodeType())
+
+  public consumesNode() => false
+
+  public reset() {
+    _exhausted = false
+  }
 }

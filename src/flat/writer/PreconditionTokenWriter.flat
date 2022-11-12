@@ -6,6 +6,8 @@ import flat/parser/matchers
 data class extends TokenWriter {
   PreconditionTokenPattern pattern
 
+  override public validNode(Node node) => true
+
   override public write(WriterOutputStream output, Node node) {
     innerWrite(output, node)
   }

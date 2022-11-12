@@ -2,17 +2,20 @@ package flat/writer
 
 import flat/compiler/models
 import flat/io
+import flat/log
 
 class {
+  static Logger log = Logger(WriterOutputStream.class)
+
   public write(String value = "") {
-    Console.log("writing string: #{value}")
+    log.info("writing string: #{value}")
   }
 
   public write(Token token) {
-    Console.log("writing token: #{token}")
+    log.info("writing token: #{token}")
   }
 
   public write(Token[] tokens) {
-    Console.log("writing tokens: #{tokens}")
+    log.info("writing tokens: #{tokens}")
   }
 }
