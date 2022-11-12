@@ -23,7 +23,7 @@ data class extends TokenWriter {
     if (currentWriter == null && !hasNextWriter()) return false
     if (currentWriter == null) nextWriter()
 
-    return currentWriter.consumesNode()
+    return currentWriter.consumesNode() || iterator.allNext.any({ _.consumesNode() })
   }
 
   hasNextWriter() -> Bool {
