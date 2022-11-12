@@ -69,7 +69,6 @@ data class extends TokenWriter {
     log.infoFunc({"Node #{green(node.class.name)} is not valid for current writer. Checking nextWriter #{magenta(currentWriter.pattern.toPatternString())}"})
 
     if (validNode(node)) {
-      currentWriter.reset()
       log.infoFunc({"Found valid writer for node #{magenta(currentWriter.pattern.toPatternString())}"})
 
       return true
