@@ -7,8 +7,6 @@ import flat/compiler/models
 data class extends TokenWriter {
   SingleTokenPattern pattern
 
-  override public validNode(Node node) => true
-
   override public write(WriterOutputStream output, Node node) {
     innerWrite(output, node)
   }
