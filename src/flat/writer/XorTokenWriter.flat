@@ -34,7 +34,13 @@ data class extends TokenWriter {
   }
 
   innerWrite(WriterOutputStream output, Node node) {
+    log.infoFunc({"|
+      Writing node #{green(node.class.name)} to writer #{green(writer.class.name)}
+        pattern: #{magenta(writer.pattern.toPatternString())}
+      |"})
+    Logger.increaseTab()
     writer.write(output, node)
+    Logger.decreaseTab()
 
     exhausted = writer.exhausted
   }

@@ -48,6 +48,24 @@ data class extends TokenWriter {
     if (currentWriter.validNode(node)) return true
     if (!hasNextWriter()) return false
 
+    log.infoFunc({"|
+      Checking node type #{green(node.class.name)} against writer #{magenta(currentWriter.pattern.toPatternString())}
+        consumesNode: #{currentWriter.consumesNode()}
+      |"})
+
+    Logger.increaseTab()
+    let currentValid = currentWriter.consumesNode() && currentWriter.validNode(node)
+    Logger.decreaseTab()
+
+    if (currentValid) {
+      log.infoFunc({"Valid node for writer #{magenta(currentWriter.pattern.toPatternString())}"})
+      return true
+    }
+    if (!hasNextWriter()) {
+      log.infoFunc({"No more writers. Not valid #{magenta(currentWriter.pattern.toPatternString())}"})
+      return false
+    }
+
     nextWriter()
     log.infoFunc({"Node #{green(node.class.name)} is not valid for current writer. Checking nextWriter #{magenta(currentWriter.pattern.toPatternString())}"})
 
@@ -57,6 +75,10 @@ data class extends TokenWriter {
 
       return true
     } else {
+      log.infoFunc({"|
+        Node #{green(node.class.name)} is not valid for writer. Exhausted
+          pattern: #{magenta(currentWriter.pattern.toPatternString())}
+        |"})
       exhausted = true
       return false
     }
@@ -79,6 +101,10 @@ data class extends TokenWriter {
 
   innerWrite(WriterOutputStream output, Node node) {
     while (!currentWriter.consumesNode()) {
+      log.infoFunc({"|
+        Writing node #{green(node.class.name)} to currentWriter #{green(currentWriter.class.name)}
+          pattern: #{magenta(currentWriter.pattern.toPatternString())}
+        |"})
       Logger.increaseTab()
       currentWriter.write(output, node)
       Logger.decreaseTab()

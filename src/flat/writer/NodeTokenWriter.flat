@@ -20,7 +20,13 @@ data class extends TokenWriter {
     if (writer == null) searchWriter(node)
     if (writer == null) return false
 
-    return writer.validNode(node)
+    log.infoFunc({"Checking node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())}"})
+
+    Logger.increaseTab()
+    let valid = writer.validNode(node)
+    Logger.decreaseTab()
+
+    return valid
   }
 
   override public consumesNode() => true
@@ -48,7 +54,13 @@ data class extends TokenWriter {
   }
 
   innerWrite(WriterOutputStream output, Node node) {
+    log.infoFunc({"|
+      Writing node #{green(node.class.name)} to writer #{green(writer.class.name)}
+        pattern: #{magenta(writer.pattern.toPatternString())}
+      |"})
+    Logger.increaseTab()
     writer.write(output, node)
+    Logger.decreaseTab()
 
     exhausted = writer.exhausted
   }

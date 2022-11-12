@@ -22,7 +22,11 @@ data class extends TokenWriter {
     if (currentWriter == null) searchCurrentWriter(node)
     if (super.validNode(node)) return true
 
-    return currentWriter?.validNode(node)
+    Logger.increaseTab()
+    let valid = currentWriter?.validNode(node)
+    Logger.decreaseTab()
+
+    return valid
   }
 
   override public consumesNode() => true
@@ -59,9 +63,20 @@ data class extends TokenWriter {
 
   override public write(WriterOutputStream output, Node node) {
     if (currentWriter) {
+      log.infoFunc({"|
+        Checking node type #{green(node.class.name)} validity for currentWriter
+          currentWriter.pattern: #{magenta(currentWriter.pattern.toPatternString())}
+        |"})
+      Logger.increaseTab()
       if (!currentWriter.validNode(node)) {
-        log.infoFunc({"Node #{green(node.class.name)} is not valid for writer. Resetting current writer"})
+        Logger.decreaseTab()
+        log.infoFunc({"|
+          Node #{green(node.class.name)} is not valid for currentWriter. Resetting current currentWriter
+            currentWriter.pattern: #{magenta(currentWriter.pattern.toPatternString())}
+          |"})
         currentWriter = null
+      } else {
+        Logger.decreaseTab()
       }
     }
     if (!currentWriter) {
