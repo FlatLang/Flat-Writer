@@ -96,6 +96,14 @@ data class extends TokenWriter {
     }
 
     innerWrite(output, node)
+
+    if (currentWriter.exhausted) {
+      if (hasNextWriter()) {
+        nextWriter()
+      } else {
+        exhausted = true
+      }
+    }
   }
 
   innerWrite(WriterOutputStream output, Node node) {
@@ -131,14 +139,6 @@ data class extends TokenWriter {
     Logger.increaseTab()
     currentWriter.write(output, node)
     Logger.decreaseTab()
-
-    if (currentWriter.exhausted) {
-      if (hasNextWriter()) {
-        nextWriter()
-      } else {
-        exhausted = true
-      }
-    }
   }
 
   reset() {
