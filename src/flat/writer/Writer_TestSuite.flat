@@ -7,7 +7,9 @@ import flat/io/FancyOutputStream
 import flat/writer/Writer
 
 [TestSuite [
-  Writer_Test
+  Writer_Test,
+  SingleTokenWriter_Test,
+  GroupTokenWriter_Test
 ]]
 class {
   public static async main(String[] args) {

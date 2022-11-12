@@ -1,0 +1,22 @@
+package flat/writer
+
+import flat/compiler/models
+
+class TestOutputStream_Test {
+}
+
+class TestOutputStream extends WriterOutputStream {
+  visible var String output = ""
+
+  override public writeString(String value = "") {
+    output += "<#{value}>"
+  }
+
+  override public writeToken(Token token) {
+    output += "<#{token.value}>"
+  }
+
+  override public writeTokens(Token[] tokens) {
+    output += tokens.map({ "<#{_.value}>" }).join()
+  }
+}
