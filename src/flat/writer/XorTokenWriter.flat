@@ -17,7 +17,11 @@ data class extends TokenWriter {
 
   override public validNode(Node node) => writer != null ? writer.validNode(node) : super.validNode(node)
 
-  override public consumesNode() => writer.consumesNode()
+  override public consumesNode() -> Bool {
+    if (writer == null) return super.consumesNode()
+
+    return writer.consumesNode()
+  }
 
   override public write(WriterOutputStream output, Node node) {
     if (!writer) {
