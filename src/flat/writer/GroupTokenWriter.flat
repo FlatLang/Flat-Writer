@@ -152,13 +152,7 @@ data class extends TokenWriter {
   innerWrite(WriterOutputStream output, Node node) {
     if (buffer.buffer.isNotEmpty) {
       log.infoFunc({"Writing buffered data: #{buffer.buffer}"})
-      buffer.buffer.forEach((value) => {
-        match value.class {
-          String.class => output.writeString((String)value)
-          Token.class => output.writeToken((Token)value)
-          Array.class => output.writeTokens((Array)value)
-        }
-      })
+      buffer.buffer.forEach({ output.writeObject(_) })
       buffer.clear()
     }
 

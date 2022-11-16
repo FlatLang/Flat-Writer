@@ -23,4 +23,13 @@ class {
     log.infoFunc({"Writing Tokens: #{tokens}"})
     output += tokens.map({ _.value }).stitch(" ")
   }
+
+  public writeObject(Object value) {
+    match value.class {
+      String.class => writeString((String)value)
+      Token.class => writeToken((Token)value)
+      Array.class => writeTokens((Array)value)
+      default => throw Exception("Invalid object type '#{value.class.name}'")
+    }
+  }
 }
