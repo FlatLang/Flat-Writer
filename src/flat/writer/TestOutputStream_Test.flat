@@ -9,20 +9,27 @@ class TestOutputStream_Test {
 class TestOutputStream extends WriterOutputStream {
   static Logger log = Logger(TestOutputStream.class)
 
-  visible var String output = ""
+  visible var Object[] buffer = Object[]
+  visible String output => buffer.map((value) => {
+    match value.class {
+      String.class => "<#{value.toString()}>"
+      Token.class => "<#{((Token)value).value}>"
+      default => throw Exception("Invalid object type '#{value.class.name}'")
+    }
+  }).join()
 
   override public writeString(String value = "") {
     log.info("Writing String: #{value}")
-    output += "<#{value}>"
+    buffer.add(value)
   }
 
   override public writeToken(Token token) {
     log.info("Writing Token: #{token}")
-    output += "<#{token.value}>"
+    buffer.add(token)
   }
 
   override public writeTokens(Token[] tokens) {
     log.info("Writing Tokens: #{tokens}")
-    output += tokens.map({ "<#{_.value}>" }).join()
+    buffer.addAll(tokens)
   }
 }
