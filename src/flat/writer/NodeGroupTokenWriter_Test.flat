@@ -4,6 +4,7 @@ import flat/ast
 import flat/parser
 import flat/parser/flat
 import flat/parser/matchers
+import flat/annotations
 import flat/compiler/models
 import flat/writer/TestOutputStream_Test.TestOutputStream
 
@@ -89,7 +90,6 @@ testable class {
     let outputStream = TestOutputStream()
     let pattern = NodeGroupTokenPattern([
       ClassParser(),
-      FieldParser(),
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
@@ -115,6 +115,23 @@ testable class {
     writer.endCurrentWriter(outputStream)
 
     expect(outputStream.output).toBe("<class><{><}>")
+    expect(writer.exhausted).toBe(true)
+  }
+
+  test `can write complete klass with empty function`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: Token(value: "class")))
+    writer.write(outputStream, FunctionNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.endCurrentWriter(outputStream)
+    writer.endCurrentWriter(outputStream)
+
+    expect(outputStream.output).toBe("<class><{><test><(><)><{><}><}>")
     expect(writer.exhausted).toBe(true)
   }
 }
