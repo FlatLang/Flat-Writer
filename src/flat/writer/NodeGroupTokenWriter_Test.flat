@@ -171,4 +171,19 @@ testable class {
     expect(outputStream.output).toBe("<class><{><public><static><test><(><)><{><}><}>")
     expect(writer.exhausted).toBe(true)
   }
+
+  test `can write complete function with no parameters and empty body`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      FunctionParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, FunctionNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.exhaust(outputStream)
+
+    expect(outputStream.output).toBe("<test><(><)><{><}>")
+    expect(writer.exhausted).toBe(true)
+  }
 }
