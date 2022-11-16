@@ -34,11 +34,11 @@ data class extends TokenWriter {
 
   override public consumesNode() => true
 
-  override public endCurrentWriter(WriterOutputStream output) {
+  override public exhaust(WriterOutputStream output) {
     log.infoFunc({"Ending current writer"})
 
     if (currentWriter) {
-      currentWriter.endCurrentWriter(output)
+      currentWriter.exhaust(output)
       currentWriter = null
     }
 

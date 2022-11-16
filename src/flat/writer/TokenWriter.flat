@@ -18,7 +18,7 @@ abstract data class {
 
   abstract public write(WriterOutputStream output, Node node)
 
-  public endCurrentWriter(WriterOutputStream output) {
+  public exhaust(WriterOutputStream output) {
     log.infoFunc({"Ending current writer"})
   }
 

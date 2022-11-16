@@ -31,11 +31,11 @@ data class extends TokenWriter {
     return iterator.allNextInclusive.any({ _.requiresNode() })
   }
 
-  override public endCurrentWriter(WriterOutputStream output) {
+  override public exhaust(WriterOutputStream output) {
     log.infoFunc({"Ending current writer #{magenta(pattern.toPatternString())}"})
 
     if (currentWriter && !currentWriter.requiresNode()) {
-      currentWriter.endCurrentWriter(output)
+      currentWriter.exhaust(output)
     }
 
     while (hasNextWriter()) {
@@ -43,7 +43,7 @@ data class extends TokenWriter {
 
       if (!currentWriter.requiresNode()) {
         currentWriter.write(output, null)
-        currentWriter.endCurrentWriter(output)
+        currentWriter.exhaust(output)
       }
     }
 

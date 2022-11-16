@@ -28,10 +28,10 @@ data class extends TokenWriter {
     return writer.consumesNode()
   }
 
-  override public endCurrentWriter(WriterOutputStream output) {
+  override public exhaust(WriterOutputStream output) {
     log.infoFunc({"Ending current writer"})
 
-    writer.endCurrentWriter(output)
+    writer.exhaust(output)
 
     exhausted = true
   }

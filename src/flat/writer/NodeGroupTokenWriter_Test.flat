@@ -97,8 +97,8 @@ testable class {
     writer.write(outputStream, FieldNode())
     writer.write(outputStream, TypeNode(name: Token(value: "String")))
     writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
-    writer.endCurrentWriter(outputStream)
-    writer.endCurrentWriter(outputStream)
+    writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
 
     expect(outputStream.output).toBe("<class><{><String><test><}>")
     expect(writer.exhausted).toBe(true)
@@ -112,7 +112,7 @@ testable class {
     let writer = NodeGroupTokenWriter(pattern)
 
     writer.write(outputStream, ClassNode(type: Token(value: "class")))
-    writer.endCurrentWriter(outputStream)
+    writer.exhaust(outputStream)
 
     expect(outputStream.output).toBe("<class><{><}>")
     expect(writer.exhausted).toBe(true)
@@ -128,8 +128,8 @@ testable class {
     writer.write(outputStream, ClassNode(type: Token(value: "class")))
     writer.write(outputStream, FunctionNode())
     writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
-    writer.endCurrentWriter(outputStream)
-    writer.endCurrentWriter(outputStream)
+    writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
 
     expect(outputStream.output).toBe("<class><{><test><(><)><{><}><}>")
     expect(writer.exhausted).toBe(true)
@@ -146,8 +146,8 @@ testable class {
     writer.write(outputStream, PublicModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "public")))
     writer.write(outputStream, FunctionNode())
     writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
-    writer.endCurrentWriter(outputStream)
-    writer.endCurrentWriter(outputStream)
+    writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
 
     expect(outputStream.output).toBe("<class><{><public><test><(><)><{><}><}>")
     expect(writer.exhausted).toBe(true)
@@ -165,8 +165,8 @@ testable class {
     writer.write(outputStream, StaticModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "static")))
     writer.write(outputStream, FunctionNode())
     writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
-    writer.endCurrentWriter(outputStream)
-    writer.endCurrentWriter(outputStream)
+    writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
 
     expect(outputStream.output).toBe("<class><{><public><static><test><(><)><{><}><}>")
     expect(writer.exhausted).toBe(true)
