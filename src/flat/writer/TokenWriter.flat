@@ -2,18 +2,30 @@ package flat/writer
 
 import flat/ast
 import flat/parser/matchers
+import flat/log
+
+import static flat/colorizer/Colorizer
 
 abstract data class {
+  static Logger log = Logger(Writer.class)
+
   visible TokenPattern pattern
 
   var Bool _exhausted = false
   visible var Bool exhausted <=> _exhausted
 
+  lazy BufferWriterOutputStream buffer => BufferWriterOutputStream()
+
   abstract public write(WriterOutputStream output, Node node)
+
+  public endCurrentWriter(WriterOutputStream output) {
+    log.infoFunc({"Ending current writer"})
+  }
 
   public validNode(Node node) => pattern.getNodeType() != Node.class && node.class.isOfType(pattern.getNodeType())
 
   public consumesNode() => pattern.getNodeType() != Node.class
+  public requiresNode() => !pattern.optional && consumesNode()
 
   public reset() {
     _exhausted = false

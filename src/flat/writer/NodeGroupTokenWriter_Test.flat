@@ -49,4 +49,72 @@ testable class {
     expect(outputStream.output).toBe("<=><test2>")
     expect(writer.exhausted).toBe(false)
   }
+
+  test `can write klass with name then field`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+      FieldParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: Token(value: "class")))
+    writer.write(outputStream, IdentifierNode(name: Token(value: "Bob")))
+    writer.write(outputStream, FieldNode())
+    writer.write(outputStream, TypeNode(name: Token(value: "String")))
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+
+    expect(outputStream.output).toBe("<class><Bob><{><String><test>")
+    expect(writer.exhausted).toBe(false)
+  }
+
+  test `can write klass with implicit name then field`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+      FieldParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: Token(value: "class")))
+    writer.write(outputStream, FieldNode())
+    writer.write(outputStream, TypeNode(name: Token(value: "String")))
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+
+    expect(outputStream.output).toBe("<class><{><String><test>")
+    expect(writer.exhausted).toBe(false)
+  }
+
+  test `can write complete klass with field`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+      FieldParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: Token(value: "class")))
+    writer.write(outputStream, FieldNode())
+    writer.write(outputStream, TypeNode(name: Token(value: "String")))
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.endCurrentWriter(outputStream)
+    writer.endCurrentWriter(outputStream)
+
+    expect(outputStream.output).toBe("<class><{><String><test><}>")
+    expect(writer.exhausted).toBe(true)
+  }
+
+  test `can write complete empty klass`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: Token(value: "class")))
+    writer.endCurrentWriter(outputStream)
+
+    expect(outputStream.output).toBe("<class><{><}>")
+    expect(writer.exhausted).toBe(true)
+  }
 }

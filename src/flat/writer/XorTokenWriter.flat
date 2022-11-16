@@ -15,12 +15,25 @@ data class extends TokenWriter {
 
   var TokenWriter writer
 
-  override public validNode(Node node) => writer != null ? writer.validNode(node) : super.validNode(node)
+  override public validNode(Node node) -> Bool {
+    if (node == null) return false
+    if (writer) return writer.validNode(node)
+
+    return super.validNode(node)
+  }
 
   override public consumesNode() -> Bool {
     if (writer == null) return super.consumesNode()
 
     return writer.consumesNode()
+  }
+
+  override public endCurrentWriter(WriterOutputStream output) {
+    log.infoFunc({"Ending current writer"})
+
+    writer.endCurrentWriter(output)
+
+    exhausted = true
   }
 
   override public write(WriterOutputStream output, Node node) {

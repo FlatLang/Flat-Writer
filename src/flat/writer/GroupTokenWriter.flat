@@ -2,6 +2,7 @@ package flat/writer
 
 import flat/ast
 import flat/parser/matchers
+import flat/compiler/models
 import flat/log
 
 import flat/writer/WriterPatternExtensions
@@ -26,6 +27,29 @@ data class extends TokenWriter {
     return currentWriter.consumesNode() || iterator.allNext.any({ _.consumesNode() })
   }
 
+  override public requiresNode() -> Bool {
+    return iterator.allNextInclusive.any({ _.requiresNode() })
+  }
+
+  override public endCurrentWriter(WriterOutputStream output) {
+    log.infoFunc({"Ending current writer #{magenta(pattern.toPatternString())}"})
+
+    if (currentWriter && !currentWriter.requiresNode()) {
+      currentWriter.endCurrentWriter(output)
+    }
+
+    while (hasNextWriter()) {
+      nextWriter()
+
+      if (!currentWriter.requiresNode()) {
+        currentWriter.write(output, null)
+        currentWriter.endCurrentWriter(output)
+      }
+    }
+
+    exhausted = true
+  }
+
   hasNextWriter() -> Bool {
     return iterator.hasNext
   }
@@ -42,6 +66,13 @@ data class extends TokenWriter {
   }
 
   override public validNode(Node node) -> Bool {
+    return validNode(node, false)
+  }
+
+  validNode(Node node, Bool recurse) -> Bool {
+    buffer.clear()
+
+    if (node == null) return false
     if (super.validNode(node)) return true
     if (currentWriter == null && pattern.getNodeType() != Node.class) return false
     if (currentWriter == null && !hasNextWriter()) return false
@@ -62,22 +93,35 @@ data class extends TokenWriter {
     }
     if (!hasNextWriter()) {
       log.infoFunc({"No more writers. Not valid #{magenta(currentWriter.pattern.toPatternString())}"})
+      log.infoFunc({"Clearing buffered data: #{buffer.buffer}"})
+      buffer.clear()
       return false
     }
+
+    let writer = currentWriter
 
     nextWriter()
     log.infoFunc({"Node #{green(node.class.name)} is not valid for current writer. Checking nextWriter #{magenta(currentWriter.pattern.toPatternString())}"})
 
-    if (validNode(node)) {
-      log.infoFunc({"Found valid writer for node #{magenta(currentWriter.pattern.toPatternString())}"})
+    if (validNode(node, true)) {
+      if (!recurse) {
+        currentWriter.reset()
+        currentWriter.write(buffer, node)
+      }
+      log.infoFunc({"|
+        Found valid writer for node #{magenta(currentWriter.pattern.toPatternString())}
+          buffer: #{buffer.buffer}
+        |"})
 
       return true
     } else {
       log.infoFunc({"|
-        Node #{green(node.class.name)} is not valid for writer. Exhausted
+        Node #{green(node.class.name)} is not valid for writer.
           pattern: #{magenta(currentWriter.pattern.toPatternString())}
         |"})
-      exhausted = true
+      currentWriter = writer
+      log.infoFunc({"Clearing buffered data: #{buffer.buffer}"})
+      buffer.clear()
       return false
     }
   }
@@ -106,9 +150,21 @@ data class extends TokenWriter {
   }
 
   innerWrite(WriterOutputStream output, Node node) {
+    if (buffer.buffer.isNotEmpty) {
+      log.infoFunc({"Writing buffered data: #{buffer.buffer}"})
+      buffer.buffer.forEach((value) => {
+        match value.class {
+          String.class => output.writeString((String)value)
+          Token.class => output.writeToken((Token)value)
+          Array.class => output.writeTokens((Array)value)
+        }
+      })
+      buffer.clear()
+    }
+
     while (!currentWriter.consumesNode()) {
       log.infoFunc({"|
-        Writing node #{green(node.class.name)} to currentWriter #{green(currentWriter.class.name)}
+        Writing node #{green(node?.class.name)} to currentWriter #{green(currentWriter.class.name)}
           pattern: #{magenta(currentWriter.pattern.toPatternString())}
         |"})
       Logger.increaseTab()
@@ -123,16 +179,17 @@ data class extends TokenWriter {
     }
 
     if (!currentWriter.validNode(node)) {
+      buffer.clear()
       parentNode = node
       log.infoFunc({"|
-        Node #{green(node.class.name)} is not valid for current writer #{green(currentWriter.class.name)}. Awaiting child node
+        Node #{green(node?.class.name)} is not valid for current writer #{green(currentWriter.class.name)}. Awaiting child node
           pattern: #{magenta(currentWriter.pattern.toPatternString())}
         |"})
       return
     }
 
     log.infoFunc({"|
-      Writing node #{green(node.class.name)} to currentWriter #{green(currentWriter.class.name)}
+      Writing node #{green(node?.class.name)} to currentWriter #{green(currentWriter.class.name)}
         pattern: #{magenta(currentWriter.pattern.toPatternString())}
       |"})
     Logger.increaseTab()

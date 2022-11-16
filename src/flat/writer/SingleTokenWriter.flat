@@ -3,9 +3,20 @@ package flat/writer
 import flat/ast
 import flat/parser/matchers
 import flat/compiler/models
+import flat/log
+
+import static flat/colorizer/Colorizer
 
 data class extends TokenWriter {
+  static Logger log = Logger(SingleTokenWriter.class)
+
   SingleTokenPattern pattern
+
+  override public validNode(Node node) -> Bool {
+    if (node == null) return false
+
+    return super.validNode(node)
+  }
 
   override public write(WriterOutputStream output, Node node) {
     innerWrite(output, node)

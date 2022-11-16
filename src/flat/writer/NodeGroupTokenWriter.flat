@@ -19,6 +19,7 @@ data class extends TokenWriter {
   var TokenWriter currentWriter
 
   override public validNode(Node node) -> Bool {
+    if (node == null) return false
     if (currentWriter == null) searchCurrentWriter(node)
     if (super.validNode(node)) return true
 
@@ -32,6 +33,17 @@ data class extends TokenWriter {
   }
 
   override public consumesNode() => true
+
+  override public endCurrentWriter(WriterOutputStream output) {
+    log.infoFunc({"Ending current writer"})
+
+    if (currentWriter) {
+      currentWriter.endCurrentWriter(output)
+      currentWriter = null
+    }
+
+    exhausted = true
+  }
 
   searchCurrentWriter(Node node) {
     if (writerMap.isEmpty) {
