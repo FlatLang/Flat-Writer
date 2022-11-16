@@ -134,4 +134,41 @@ testable class {
     expect(outputStream.output).toBe("<class><{><test><(><)><{><}><}>")
     expect(writer.exhausted).toBe(true)
   }
+
+  test `can write complete klass with empty function with a modifier`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: Token(value: "class")))
+    writer.write(outputStream, PublicModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "public")))
+    writer.write(outputStream, FunctionNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.endCurrentWriter(outputStream)
+    writer.endCurrentWriter(outputStream)
+
+    expect(outputStream.output).toBe("<class><{><public><test><(><)><{><}><}>")
+    expect(writer.exhausted).toBe(true)
+  }
+
+  test `can write complete klass with empty function with modifiers`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: Token(value: "class")))
+    writer.write(outputStream, PublicModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "public")))
+    writer.write(outputStream, StaticModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "static")))
+    writer.write(outputStream, FunctionNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.endCurrentWriter(outputStream)
+    writer.endCurrentWriter(outputStream)
+
+    expect(outputStream.output).toBe("<class><{><public><static><test><(><)><{><}><}>")
+    expect(writer.exhausted).toBe(true)
+  }
 }
