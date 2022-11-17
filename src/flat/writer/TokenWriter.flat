@@ -27,7 +27,7 @@ abstract data class {
   public consumesNode() => pattern.getNodeType() != Node.class
   public requiresNode() => !pattern.optional && consumesNode()
   public writePrimitiveTokens(WriterOutputStream output, Node node) => true {
-    log.infoFunc({"Writing primitive Tokens #{magenta(pattern.toPatternString()}"})
+    log.infoFunc({"Writing primitive Tokens #{magenta(pattern.toPatternString())}"})
     write(output, node)
   }
 
