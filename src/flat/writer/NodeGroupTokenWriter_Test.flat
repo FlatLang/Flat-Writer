@@ -180,10 +180,16 @@ testable class {
     let writer = NodeGroupTokenWriter(pattern)
 
     writer.write(outputStream, FunctionNode())
-    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "test")))
     writer.exhaust(outputStream)
 
-    expect(outputStream.output).toBe("<test><(><)><{><}>")
+    expect(outputStream.buffer).toBe([
+      Token(type: Token.Type.IDENTIFIER, value: "test"),
+      Token(type: Token.Type.SYMBOL, value: "("),
+      Token(type: Token.Type.SYMBOL, value: ")"),
+      Token(type: Token.Type.SYMBOL, value: "{"),
+      Token(type: Token.Type.SYMBOL, value: "}"),
+    ])
     expect(writer.exhausted).toBe(true)
   }
 }
