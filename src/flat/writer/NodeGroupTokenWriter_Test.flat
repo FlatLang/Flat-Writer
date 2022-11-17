@@ -192,4 +192,69 @@ testable class {
     ])
     expect(writer.exhausted).toBe(true)
   }
+
+  ignore test `can write complete local declaration with assignment`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      AnnotationParser(),
+      LocalDeclarationParser(),
+      AssignmentParser(),
+      LiteralParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, LetModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "let")))
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.write(outputStream, AssignmentNode())
+    writer.write(outputStream, StringLiteralNode(value: Token(value: "\"hello, world!\"")))
+    writer.exhaust(outputStream)
+
+    expect(outputStream.output).toBe("<let><local><=><\"hello, world!\">")
+    expect(writer.exhausted).toBe(true)
+  }
+
+  ignore test `can write complete function with no parameters with local declaration`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      FunctionParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, FunctionNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.write(outputStream, LetModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "let")))
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.write(outputStream, AssignmentNode())
+    writer.write(outputStream, StringLiteralNode(value: Token(value: "\"hello, world!\"")))
+    writer.exhaust(outputStream)
+
+    expect(outputStream.output).toBe("<test><(><)><{><let><local><=><\"hello, world!\"><}>")
+    expect(writer.exhausted).toBe(true)
+  }
+
+  ignore test `can write complete klass with function with local declaration`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: Token(value: "class")))
+    writer.write(outputStream, PublicModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "public")))
+    writer.write(outputStream, StaticModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "static")))
+    writer.write(outputStream, FunctionNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "test")))
+    writer.write(outputStream, LetModifier(aliasUsed: Token(type: Token.Type.IDENTIFIER, value: "let")))
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.write(outputStream, AssignmentNode())
+    writer.write(outputStream, StringLiteralNode(value: Token(value: "\"hello, world!\"")))
+    writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
+
+    expect(outputStream.output).toBe("<class><{><public><static><test><(><)><{><let><local><=><\"hello, world!\"><}><}>")
+    expect(writer.exhausted).toBe(true)
+  }
 }
