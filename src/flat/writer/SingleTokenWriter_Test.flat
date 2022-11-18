@@ -14,7 +14,9 @@ testable class {
 
     writer.write(outputStream, Node())
 
-    expect(outputStream.output).toBe("<test>")
+    expect(outputStream.buffer).toBe([
+      Token(type: Token.Type.IDENTIFIER, value: "test"),
+    ])
     expect(writer.exhausted).toBe(true)
   }
 
@@ -23,9 +25,11 @@ testable class {
     let pattern = SingleTokenPattern(type: Token.Type.IDENTIFIER, field: "name")
     let writer = SingleTokenWriter(pattern)
 
-    writer.write(outputStream, IdentifierNode(name: Token(value: "bob")))
+    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "bob")))
 
-    expect(outputStream.output).toBe("<bob>")
+    expect(outputStream.buffer).toBe([
+      Token(type: Token.Type.IDENTIFIER, value: "bob"),
+    ])
     expect(writer.exhausted).toBe(true)
   }
 }

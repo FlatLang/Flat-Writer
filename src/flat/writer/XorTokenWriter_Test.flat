@@ -23,10 +23,12 @@ testable class {
     let writer = XorTokenWriter(pattern)
 
     writer.write(outputStream, LocalDeclarationNode())
-    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
     writer.exhaust(outputStream)
 
-    expect(outputStream.output).toBe("<local>")
+    expect(outputStream.buffer).toBe([
+      Token(type: Token.Type.IDENTIFIER, value: "local"),
+    ])
     expect(writer.exhausted).toBe(true)
   }
 
@@ -44,11 +46,14 @@ testable class {
     let writer = XorTokenWriter(pattern)
 
     writer.write(outputStream, LocalDeclarationNode())
-    writer.write(outputStream, TypeNode(name: Token(value: "String")))
-    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.write(outputStream, TypeNode(name: Token(type: Token.Type.IDENTIFIER, value: "String")))
+    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
     writer.exhaust(outputStream)
 
-    expect(outputStream.output).toBe("<String><local>")
+    expect(outputStream.buffer).toBe([
+      Token(type: Token.Type.IDENTIFIER, value: "String"),
+      Token(type: Token.Type.IDENTIFIER, value: "local"),
+    ])
     expect(writer.exhausted).toBe(true)
   }
 
@@ -63,10 +68,12 @@ testable class {
     let writer = XorTokenWriter(pattern)
 
     writer.write(outputStream, LocalDeclarationNode())
-    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
     writer.exhaust(outputStream)
 
-    expect(outputStream.output).toBe("<local>")
+    expect(outputStream.buffer).toBe([
+      Token(type: Token.Type.IDENTIFIER, value: "local"),
+    ])
     expect(writer.exhausted).toBe(true)
   }
 }
