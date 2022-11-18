@@ -1,0 +1,54 @@
+package flat/writer
+
+import flat/ast
+import flat/parser
+import flat/parser/flat
+import flat/parser/matchers
+import flat/annotations
+import flat/compiler/models
+import flat/writer/TestOutputStream_Test.TestOutputStream
+
+testable class {
+  test `can buffer until smaller match is found`() {
+    let outputStream = TestOutputStream()
+    let pattern = XorTokenPattern<LocalDeclarationNode>([
+      GroupTokenPattern([
+        IdentifierParser().pattern,
+      ]),
+      GroupTokenPattern([
+        NodeTokenPattern([ValueTypeParser()]),
+        IdentifierParser().pattern,
+      ])
+    ])
+    let writer = XorTokenWriter(pattern)
+
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.exhaust(outputStream)
+
+    expect(outputStream.output).toBe("<local>")
+    expect(writer.exhausted).toBe(true)
+  }
+
+  test `can buffer until full match is found`() {
+    let outputStream = TestOutputStream()
+    let pattern = XorTokenPattern<LocalDeclarationNode>([
+      GroupTokenPattern([
+        IdentifierParser().pattern,
+      ]),
+      GroupTokenPattern([
+        NodeTokenPattern([ValueTypeParser()]),
+        IdentifierParser().pattern,
+      ])
+    ])
+    let writer = XorTokenWriter(pattern)
+
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, TypeNode(name: Token(value: "String")))
+    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.exhaust(outputStream)
+
+    expect(outputStream.output).toBe("<String><local>")
+    expect(writer.exhausted).toBe(true)
+  }
+}

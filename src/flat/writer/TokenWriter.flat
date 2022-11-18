@@ -23,6 +23,7 @@ abstract data class {
   }
 
   public validNode(Node node) => pattern.getNodeType() != Node.class && node.class.isOfType(pattern.getNodeType())
+  public validNodes(Node[] nodes) => nodes.all({ validNode(_) })
 
   public consumesNode() => pattern.getNodeType() != Node.class
   public requiresNode() => !pattern.optional && consumesNode()

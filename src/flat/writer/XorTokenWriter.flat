@@ -5,6 +5,7 @@ import flat/parser/matchers
 import flat/log
 
 import flat/writer/WriterPatternExtensions
+import flat/stream/StreamListExtensions
 
 import static flat/colorizer/Colorizer
 
@@ -13,7 +14,10 @@ data class extends TokenWriter {
 
   XorTokenPattern pattern
 
+  lazy TokenWriter[] writers => pattern.patterns.map({ _.getWriter() })
   var TokenWriter writer
+
+  var Node[] nodeBuffer
 
   override public validNode(Node node) -> Bool {
     if (node == null) return false
@@ -31,26 +35,67 @@ data class extends TokenWriter {
   override public exhaust(WriterOutputStream output) {
     log.infoFunc({"Ending current writer"})
 
-    writer.exhaust(output)
+    if (writer) {
+      writer.exhaust(output)
+    }
 
     exhausted = true
   }
 
-  override public write(WriterOutputStream output, Node node) {
-    if (!writer) {
-      writer = pattern.patterns.firstWhere({ _.getNodeType() == node.class })?.getWriter()
+  searchWriter(Node node) => writer {
+    if (!nodeBuffer && consumesNode()) {
+      nodeBuffer = Node[]
+      return null
+    }
 
-      if (!writer) {
-        log.traceFunc({"Unable to determine writer for Xor pattern for node type #{green(node.class.name)}. Exhausted"})
-        exhausted = true
-        return
+    if (!nodeBuffer || nodeBuffer.isEmpty) {
+      if (writer = writers.firstWhere({ _.validNode(node) })) {
+        return writer
       }
     }
+
+    if (!nodeBuffer) {
+      nodeBuffer = [node]
+    } else {
+      nodeBuffer.add(node)
+    }
+
+    if (nodeBuffer) {
+      log.infoFunc({"Searching for match for buffer [#{nodeBuffer.map(n => green(n.class.name)).join(", ")}]"})
+
+      if (nodeBuffer.isEmpty) {
+        log.infoFunc({"Did not find a match"})
+      } else if (writer = writers.findOne({ _.validNodes(nodeBuffer) })) {
+        log.infoFunc({"Found match: #{writer.class.name}"})
+      } else {
+        log.infoFunc({"Did not find a match"})
+      }
+    } else if (!writer) {
+      writer = writers.firstWhere({ _.pattern.getNodeType() == node.class })
+
+      if (!writer) {
+        writer = writers.stream()
+          .filter({ _.pattern.getNodeType() != Node.class })
+          .firstWhere({ node.class.isOfType(_.pattern.getNodeType()) })
+      }
+    }
+  }
+
+  override public write(WriterOutputStream output, Node node) {
+    if (exhausted) return
+    if (writer == null && !searchWriter(node)) return
 
     innerWrite(output, node)
   }
 
   innerWrite(WriterOutputStream output, Node node) {
+    if (nodeBuffer?.isNotEmpty) {
+      nodeBuffer.removeLast()
+      log.infoFunc({"Writing buffered nodes: [#{nodeBuffer.map(n => green(n.class.name)).join(", ")}]"})
+      nodeBuffer.forEach({ writer.write(output, _) })
+      nodeBuffer = null
+    }
+
     log.infoFunc({"|
       Writing node #{green(node.class.name)} to writer #{green(writer.class.name)}
         pattern: #{magenta(writer.pattern.toPatternString())}
@@ -60,5 +105,12 @@ data class extends TokenWriter {
     Logger.decreaseTab()
 
     exhausted = writer.exhausted
+  }
+
+  reset() {
+    super.reset()
+
+    writer = null
+    nodeBuffer = null
   }
 }

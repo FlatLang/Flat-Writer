@@ -10,7 +10,8 @@ import flat/writer/Writer
   Writer_Test,
   SingleTokenWriter_Test,
   GroupTokenWriter_Test,
-  NodeGroupTokenWriter_Test
+  NodeGroupTokenWriter_Test,
+  XorTokenWriter_Test
 ]]
 class {
   public static async main(String[] args) {

@@ -20,6 +20,35 @@ data class extends TokenWriter {
 
   lazy ArrayIterator<TokenWriter> iterator => pattern.patterns.map({ _.getWriter() }).iterator
 
+  override public validNodes(Node[] nodes) => true {
+    log.traceFunc({"Checking if nodes are valid [#{nodes.map(n => green(n.class.name)).join(", ")}] for pattern #{magenta(pattern.toPatternString())}"})
+    let it = pattern.patterns.map({ _.getWriter() }).iterator
+
+    if (!it.hasNext) return false
+    it.stepNext
+
+    for (node in nodes) {
+      log.traceFunc({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
+      while (!it.current.validNode(node)) {
+        log.traceFunc({"Node #{green(node.class.name)} is not valid"})
+        if (!it.hasNext || !it.current.pattern.optional) return false
+
+        it.stepNext
+        log.traceFunc({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
+      }
+      it.stepNext
+    }
+
+    while (it.hasNext) {
+      if (it.stepNext.requiresNode()) {
+        log.traceFunc({"Missing required nodes for pattern #{magenta(pattern.toPatternString())}"})
+        return false
+      }
+    }
+
+    log.traceFunc({"Nodes are valid for pattern #{magenta(pattern.toPatternString())}"})
+  }
+
   override public consumesNode() -> Bool {
     if (currentWriter == null && !hasNextWriter()) return false
     if (currentWriter == null) nextWriter()
@@ -42,7 +71,7 @@ data class extends TokenWriter {
       nextWriter()
 
       if (!currentWriter.requiresNode()) {
-        currentWriter.write(output, null)
+        currentWriter.writePrimitiveTokens(output, null)
         currentWriter.exhaust(output)
       }
     }
@@ -54,7 +83,7 @@ data class extends TokenWriter {
     return iterator.hasNext
   }
 
-  nextWriter() {
+  nextWriter() => currentWriter {
     currentWriter = iterator.stepNext
     wasRepeat = false
   }
@@ -165,13 +194,16 @@ data class extends TokenWriter {
     }
 
     if (!currentWriter.validNode(node)) {
-      buffer.clear()
-      parentNode = node
-      log.infoFunc({"|
-        Node #{green(node?.class.name)} is not valid for current writer #{green(currentWriter.class.name)}. Awaiting child node
-          pattern: #{magenta(currentWriter.pattern.toPatternString())}
-        |"})
-      return
+      if (!hasNextWriter() || !iterator.next.validNode(node)) {
+        buffer.clear()
+        parentNode = node
+        log.infoFunc({"|
+          Node #{green(node?.class.name)} is not valid for current writer #{green(currentWriter.class.name)}. Awaiting child node
+            pattern: #{magenta(currentWriter.pattern.toPatternString())}
+          |"})
+        return
+      }
+      nextWriter()
     }
 
     log.infoFunc({"|
