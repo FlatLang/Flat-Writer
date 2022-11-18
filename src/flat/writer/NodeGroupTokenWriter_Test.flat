@@ -210,7 +210,7 @@ testable class {
     expect(writer.exhausted).toBe(true)
   }
 
-  ignore test `can write complete local declaration with assignment`() {
+  test `can write complete local declaration with assignment`() {
     let outputStream = TestOutputStream()
     let pattern = NodeGroupTokenPattern([
       AnnotationParser(),

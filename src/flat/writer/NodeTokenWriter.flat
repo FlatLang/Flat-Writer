@@ -5,6 +5,7 @@ import flat/parser/matchers
 import flat/log
 
 import flat/writer/WriterPatternExtensions
+import flat/stream/StreamListExtensions
 
 import static flat/colorizer/Colorizer
 
@@ -30,6 +31,13 @@ data class extends TokenWriter {
     log.infoFunc({"Node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())} is #{valid ? "" : "not "}valid"})
 
     return valid
+  }
+
+  public getNodeTypes() -> Class<Node>[] {
+    return pattern.parsers.stream()
+      .map({ _.pattern.getNodeType() })
+      .filter({ _ != Node.class })
+      .toArray()
   }
 
   override public consumesNode() => true

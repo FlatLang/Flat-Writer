@@ -52,7 +52,13 @@ data class extends TokenWriter {
         let writer = pattern.getWriter()
 
         if (pattern.getNodeType() == Node.class) {
-          log.warnFunc({"Could not get node type for pattern #{magenta(pattern.toPatternString())}"})
+          if (writer.class.isOfType(NodeTokenWriter.class)) {
+            let nodeWriter = (NodeTokenWriter)writer
+
+            nodeWriter.getNodeTypes().forEach({ writerMap[_] = writer })
+          } else {
+            log.warnFunc({"Could not get node type for pattern #{magenta(pattern.toPatternString())}"})
+          }
           return
         }
 
