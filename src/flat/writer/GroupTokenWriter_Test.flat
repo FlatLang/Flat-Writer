@@ -1,7 +1,9 @@
 package flat/writer
 
 import flat/ast
+import flat/annotations
 import flat/parser
+import flat/parser/flat
 import flat/parser/matchers
 import flat/compiler/models
 import flat/writer/TestOutputStream_Test.TestOutputStream

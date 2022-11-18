@@ -34,5 +34,7 @@ abstract data class {
 
   public reset() {
     _exhausted = false
+
+    buffer.clear()
   }
 }

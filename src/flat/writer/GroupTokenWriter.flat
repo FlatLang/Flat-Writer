@@ -6,6 +6,7 @@ import flat/compiler/models
 import flat/log
 
 import flat/writer/WriterPatternExtensions
+import flat/stream/StreamListExtensions
 
 import static flat/colorizer/Colorizer
 
@@ -18,16 +19,21 @@ data class extends TokenWriter {
   var TokenWriter currentWriter
   var Node parentNode
 
-  lazy ArrayIterator<TokenWriter> iterator => pattern.patterns.map({ _.getWriter() }).iterator
+  lazy TokenWriter[] writers => pattern.patterns.stream()
+    .filter({ !_.class.isOfType(PreconditionTokenPattern.class) })
+    .map({ _.getWriter() })
+    .toArray()
+
+  lazy ArrayIterator<TokenWriter> iterator => writers.iterator
 
   override public validNodes(Node[] nodes) => true {
     log.traceFunc({"Checking if nodes are valid [#{nodes.map(n => green(n.class.name)).join(", ")}] for pattern #{magenta(pattern.toPatternString())}"})
-    let it = pattern.patterns.map({ _.getWriter() }).iterator
-
-    if (!it.hasNext) return false
-    it.stepNext
+    let it = writers.filter({ _.consumesNode() }).iterator
 
     for (node in nodes) {
+      if (!it.hasNext) return false
+      it.stepNext
+
       log.traceFunc({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
       while (!it.current.validNode(node)) {
         log.traceFunc({"Node #{green(node.class.name)} is not valid"})
@@ -36,7 +42,6 @@ data class extends TokenWriter {
         it.stepNext
         log.traceFunc({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
       }
-      it.stepNext
     }
 
     while (it.hasNext) {
@@ -241,5 +246,6 @@ data class extends TokenWriter {
     wasRepeat = false
     currentWriter = null
     iterator.reset()
+    writers.forEach({ _.reset() })
   }
 }

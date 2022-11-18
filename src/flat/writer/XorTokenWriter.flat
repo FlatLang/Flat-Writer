@@ -14,13 +14,19 @@ data class extends TokenWriter {
 
   XorTokenPattern pattern
 
-  lazy TokenWriter[] writers => pattern.patterns.map({ _.getWriter() })
+  lazy TokenWriter[] writers => pattern.patterns.stream()
+    .filter({ !_.class.isOfType(PreconditionTokenPattern.class) })
+    .map({ _.getWriter() })
+    .toArray()
+
   var TokenWriter writer
 
   var Node[] nodeBuffer
 
   override public validNode(Node node) -> Bool {
     if (node == null) return false
+    if (nodeBuffer) return true
+    if (writers.isEmpty) return true
     if (writer) return writer.validNode(node)
 
     return super.validNode(node)
@@ -48,8 +54,18 @@ data class extends TokenWriter {
       return null
     }
 
+    if (writers.isEmpty) {
+      exhausted = true
+      return null
+    }
+
     if (!nodeBuffer || nodeBuffer.isEmpty) {
-      if (writer = writers.firstWhere({ _.validNode(node) })) {
+      writer = writers.firstWhere((writer) => {
+        return writer.pattern.getNodeType() != Node.class &&
+          node.class.isOfType(writer.pattern.getNodeType())
+      })
+      if (writer) {
+        log.infoFunc({"Found match for child with valid node #{green(node.class.name)}: #{writer.class.name}"})
         return writer
       }
     }
@@ -61,15 +77,7 @@ data class extends TokenWriter {
     }
 
     if (nodeBuffer) {
-      log.infoFunc({"Searching for match for buffer [#{nodeBuffer.map(n => green(n.class.name)).join(", ")}]"})
-
-      if (nodeBuffer.isEmpty) {
-        log.infoFunc({"Did not find a match"})
-      } else if (writer = writers.findOne({ _.validNodes(nodeBuffer) })) {
-        log.infoFunc({"Found match: #{writer.class.name}"})
-      } else {
-        log.infoFunc({"Did not find a match"})
-      }
+      writer = searchWriterForNodeBuffer()
     } else if (!writer) {
       writer = writers.firstWhere({ _.pattern.getNodeType() == node.class })
 
@@ -78,6 +86,18 @@ data class extends TokenWriter {
           .filter({ _.pattern.getNodeType() != Node.class })
           .firstWhere({ node.class.isOfType(_.pattern.getNodeType()) })
       }
+    }
+  }
+
+  searchWriterForNodeBuffer() => writer {
+    log.infoFunc({"Searching for match for buffer [#{nodeBuffer.map(n => green(n.class.name)).join(", ")}]"})
+
+    if (nodeBuffer.isEmpty) {
+      log.infoFunc({"Did not find a match"})
+    } else if (writer = writers.findOne({ _.validNodes(nodeBuffer) })) {
+      log.infoFunc({"Found match: #{writer.class.name}"})
+    } else {
+      log.infoFunc({"Did not find a match"})
     }
   }
 

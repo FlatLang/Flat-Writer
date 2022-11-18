@@ -51,4 +51,22 @@ testable class {
     expect(outputStream.output).toBe("<String><local>")
     expect(writer.exhausted).toBe(true)
   }
+
+  test `does not duplicate tokens from buffer when using a precondition token pattern`() {
+    let outputStream = TestOutputStream()
+    let pattern = XorTokenPattern<LocalDeclarationNode>([
+      GroupTokenPattern([
+        PreconditionTokenPattern(annotations: [LetModifier.class]),
+        IdentifierParser().pattern,
+      ]),
+    ])
+    let writer = XorTokenWriter(pattern)
+
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, IdentifierNode(name: Token(value: "local")))
+    writer.exhaust(outputStream)
+
+    expect(outputStream.output).toBe("<local>")
+    expect(writer.exhausted).toBe(true)
+  }
 }
