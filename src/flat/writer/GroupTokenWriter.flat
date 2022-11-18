@@ -117,8 +117,11 @@ data class extends TokenWriter {
         consumesNode: #{currentWriter.consumesNode()}
       |"})
 
+    let bareNodePattern = currentWriter.pattern.getNodeType() == Node.class
+
     Logger.increaseTab()
-    let currentValid = currentWriter.consumesNode() && currentWriter.validNode(node)
+    let currentValid = !bareNodePattern && node.class == currentWriter.pattern.getNodeType() ||
+      bareNodePattern && currentWriter.consumesNode() && currentWriter.validNode(node)
     Logger.decreaseTab()
 
     if (currentValid) {
