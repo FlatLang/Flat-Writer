@@ -38,7 +38,7 @@ data class extends TokenWriter {
     } else if (pattern.value) {
       output.writeToken(Token(type: pattern.type, value: pattern.value))
     } else {
-      output.writeString("{{#{pattern.label}}}")
+      output.writeString("{{???}}")
       // throw Exception("Unable to determine token to write for pattern '#{pattern.toPatternString()}'")
     }
 
