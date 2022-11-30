@@ -10,17 +10,26 @@ class {
   visible var String output = ""
 
   public writeString(String value = "") {
-    log.infoFunc({"Writing String: #{value}"})
+    log.infoFunc({"|
+      Writing String: #{value}
+        output: #{output}
+      |"})
     output += value + " "
   }
 
   public writeToken(Token token) {
-    log.infoFunc({"Writing Token: #{token}"})
+    log.infoFunc({"|
+      Writing Token: #{token}
+        output: #{output}
+      |"})
     output += token.value + " "
   }
 
   public writeTokens(Token[] tokens) {
-    log.infoFunc({"Writing Tokens: #{tokens}"})
+    log.infoFunc({"|
+      Writing Tokens: #{tokens}
+        output: #{output}
+      |"})
     output += tokens.map({ _.value }).stitch(" ")
   }
 
