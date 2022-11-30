@@ -104,8 +104,6 @@ data class extends TokenWriter {
   }
 
   validNode(Node node, Bool topLevel) -> Bool {
-    buffer.clear()
-
     if (node == null) return false
     if (super.validNode(node)) return true
     if (currentWriter == null && pattern.getNodeType() != Node.class) return false
@@ -127,6 +125,12 @@ data class extends TokenWriter {
     if (currentValid) {
       log.infoFunc({"Valid node for writer #{magenta(currentWriter.pattern.toPatternString())}"})
       return true
+    } else {
+      currentWriter.reset()
+      if (bareNodePattern && !currentWriter.consumesNode()) {
+        log.infoFunc({"Bare node does not consume any nodes. Writing primitive tokens #{magenta(currentWriter.pattern.toPatternString())}"})
+        currentWriter.writePrimitiveTokens(buffer, node)
+      }
     }
     if (!hasNextWriter()) {
       log.infoFunc({"No more writers. Not valid #{magenta(currentWriter.pattern.toPatternString())}"})
@@ -143,7 +147,6 @@ data class extends TokenWriter {
     if (validNode(node, false)) {
       if (topLevel) {
         currentWriter.reset()
-        currentWriter.writePrimitiveTokens(buffer, node)
       }
       log.infoFunc({"|
         Found valid writer for node #{magenta(currentWriter.pattern.toPatternString())}
