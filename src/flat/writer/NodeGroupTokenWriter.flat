@@ -103,7 +103,9 @@ data class extends TokenWriter {
         newParser = currentParser.childParsers.firstWhere({ node.class.isOfType(_.pattern.getNodeType()) })
 
         if (!newParser) {
-          throw Exception("Invalid node type: '#{node.class.name}'")
+          log.error("Invalid node type: '#{node.class.name}'")
+          exhausted = true
+          return
         }
       }
 
