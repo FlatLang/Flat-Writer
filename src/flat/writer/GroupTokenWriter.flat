@@ -246,7 +246,7 @@ data class extends TokenWriter {
     }
   }
 
-  reset() {
+  override public reset() {
     super.reset()
 
     wasRepeat = false
