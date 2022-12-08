@@ -343,7 +343,7 @@ testable class {
     expect(writer.exhausted).toBe(true)
   }
 
-  ignore test `can write complete klass with function with local declaration`() {
+  test `can write complete klass with function with local declaration`() {
     let outputStream = TestOutputStream()
     let pattern = NodeGroupTokenPattern([
       ClassParser(),
