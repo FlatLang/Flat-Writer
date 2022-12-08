@@ -131,13 +131,12 @@ testable class {
 
     writer.write(outputStream, ClassNode(type: ident("class")))
     writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
       sym("}"),
     ])
-    expect(writer.exhausted).toBe(false)
-    writer.exhaust(outputStream)
     expect(writer.exhausted).toBe(true)
   }
 
@@ -220,13 +219,12 @@ testable class {
     writer.write(outputStream, FunctionNode())
     writer.write(outputStream, IdentifierNode(name: ident("test")))
     writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
 
     expect(outputStream.buffer).toBe([
       ident("test"), sym("("), sym(")"), sym("{"),
       sym("}"),
     ])
-    expect(writer.exhausted).toBe(false)
-    writer.exhaust(outputStream)
     expect(writer.exhausted).toBe(true)
   }
 
@@ -287,14 +285,13 @@ testable class {
     writer.write(outputStream, IdentifierNode(name: ident("test")))
     writer.write(outputStream, IdentifierNode(name: ident("hey")))
     writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
 
     expect(outputStream.buffer).toBe([
       ident("test"), sym("("), sym(")"), sym("{"),
         ident("hey"),
       sym("}"),
     ])
-    expect(writer.exhausted).toBe(false)
-    writer.exhaust(outputStream)
     expect(writer.exhausted).toBe(true)
   }
 
@@ -368,6 +365,51 @@ testable class {
       ident("class"), sym("{"),
         ident("public"), ident("static"), ident("test"), sym("("), sym(")"), sym("{"),
           ident("let"), ident("local"), sym("="), str("\"hello, world!\""),
+        sym("}"),
+      sym("}"),
+    ])
+    expect(writer.exhausted).toBe(true)
+  }
+
+  test `can write complete klass with function with multiple statements`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      ClassParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, ClassNode(type: ident("class")))
+    writer.write(outputStream, PublicModifier(aliasUsed: ident("public")))
+    writer.write(outputStream, StaticModifier(aliasUsed: ident("static")))
+    writer.write(outputStream, FunctionNode())
+    writer.write(outputStream, IdentifierNode(name: ident("test")))
+    writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, IdentifierNode(name: ident("local")))
+    writer.write(outputStream, AssignmentNode())
+    writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
+    writer.exhaust(outputStream)
+    writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, IdentifierNode(name: ident("local2")))
+    writer.write(outputStream, AssignmentNode())
+    writer.write(outputStream, StringLiteralNode(value: str("\"hello, world2!\"")))
+    writer.exhaust(outputStream)
+    writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
+    writer.write(outputStream, LocalDeclarationNode())
+    writer.write(outputStream, IdentifierNode(name: ident("local3")))
+    writer.write(outputStream, AssignmentNode())
+    writer.write(outputStream, StringLiteralNode(value: str("\"hello, world3!\"")))
+    writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
+    writer.exhaust(outputStream)
+
+    expect(outputStream.buffer).toBe([
+      ident("class"), sym("{"),
+        ident("public"), ident("static"), ident("test"), sym("("), sym(")"), sym("{"),
+          ident("let"), ident("local"), sym("="), str("\"hello, world!\""),
+          ident("let"), ident("local2"), sym("="), str("\"hello, world2!\""),
+          ident("let"), ident("local3"), sym("="), str("\"hello, world3!\""),
         sym("}"),
       sym("}"),
     ])

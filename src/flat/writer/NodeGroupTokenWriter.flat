@@ -42,21 +42,31 @@ data class extends TokenWriter {
 
   override public consumesNode() => true
 
-  override public exhaust(WriterOutputStream output) {
+  override public exhaust(WriterOutputStream output) => true {
     log.infoFunc({"Ending current writer"})
 
-    if (currentWriter) {
-      currentWriter.exhaust(output)
-      currentWriter = null
-      currentParser = null
-    }
-
     if (!awaitingChild) {
-      exhausted = true
-    }
+      if (currentWriter) {
+        Logger.increaseTab()
+        if (!currentWriter.exhaust(output)) {
+          Logger.decreaseTab()
+          return false
+        }
+        Logger.decreaseTab()
+        currentWriter = null
+      }
 
-    awaitingChild = false
-    currentParser = null
+      exhausted = true
+      currentParser = null
+
+      return true
+    } else {
+      log.infoFunc({"Was awaiting child"})
+      awaitingChild = false
+      currentParser = null
+
+      return false
+    }
   }
 
   initMaps() {
@@ -118,7 +128,7 @@ data class extends TokenWriter {
       }
     }
 
-    if (currentWriter) {
+    if (currentParser?.childParsers) {
       awaitingChild = true
     }
   }

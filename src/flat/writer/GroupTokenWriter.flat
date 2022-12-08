@@ -65,19 +65,26 @@ data class extends TokenWriter {
     return iterator.allNextInclusive.any({ _.requiresNode() })
   }
 
-  override public exhaust(WriterOutputStream output) {
+  override public exhaust(WriterOutputStream output) => true {
     log.infoFunc({"Ending current writer #{magenta(pattern.toPatternString())}"})
 
     if (currentWriter && !currentWriter.requiresNode()) {
-      currentWriter.exhaust(output)
+      Logger.increaseTab()
+      if (!currentWriter.exhaust(output)) {
+        Logger.decreaseTab()
+        return false
+      }
+      Logger.decreaseTab()
     }
 
     while (hasNextWriter()) {
       nextWriter()
 
       if (!currentWriter.requiresNode()) {
+        Logger.increaseTab()
         currentWriter.writePrimitiveTokens(output, null)
         currentWriter.exhaust(output)
+        Logger.decreaseTab()
       }
     }
 
