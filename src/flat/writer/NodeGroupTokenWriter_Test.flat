@@ -318,7 +318,7 @@ testable class {
     expect(writer.exhausted).toBe(true)
   }
 
-  ignore test `can write complete function with no parameters with local declaration`() {
+  test `can write complete function with no parameters with local declaration`() {
     let outputStream = TestOutputStream()
     let pattern = NodeGroupTokenPattern([
       FunctionParser(),
