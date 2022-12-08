@@ -32,6 +32,7 @@ testable class {
     let writer = NodeGroupTokenWriter(pattern)
 
     writer.write(outputStream, IdentifierNode(name: ident("test")))
+    writer.exhaust(outputStream)
     writer.write(outputStream, IdentifierNode(name: ident("test2")))
 
     expect(outputStream.buffer).toBe([
@@ -135,6 +136,8 @@ testable class {
       ident("class"), sym("{"),
       sym("}"),
     ])
+    expect(writer.exhausted).toBe(false)
+    writer.exhaust(outputStream)
     expect(writer.exhausted).toBe(true)
   }
 
@@ -222,6 +225,8 @@ testable class {
       ident("test"), sym("("), sym(")"), sym("{"),
       sym("}"),
     ])
+    expect(writer.exhausted).toBe(false)
+    writer.exhaust(outputStream)
     expect(writer.exhausted).toBe(true)
   }
 
@@ -241,6 +246,8 @@ testable class {
     expect(outputStream.buffer).toBe([
       ident("let"), ident("local"),
     ])
+    expect(writer.exhausted).toBe(false)
+    writer.exhaust(outputStream)
     expect(writer.exhausted).toBe(true)
   }
 
@@ -264,6 +271,8 @@ testable class {
     expect(outputStream.buffer).toBe([
       ident("let"), ident("local"), sym("="), str("\"hello, world!\""),
     ])
+    expect(writer.exhausted).toBe(false)
+    writer.exhaust(outputStream)
     expect(writer.exhausted).toBe(true)
   }
 
@@ -284,6 +293,28 @@ testable class {
         ident("hey"),
       sym("}"),
     ])
+    expect(writer.exhausted).toBe(false)
+    writer.exhaust(outputStream)
+    expect(writer.exhausted).toBe(true)
+  }
+
+  test `can write assignment to variable`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      IdentifierParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern)
+
+    writer.write(outputStream, IdentifierNode(name: ident("local")))
+    writer.write(outputStream, AssignmentNode())
+    writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
+    writer.exhaust(outputStream)
+
+    expect(outputStream.buffer).toBe([
+      ident("local"), sym("="), str("\"hello, world!\""),
+    ])
+    expect(writer.exhausted).toBe(false)
+    writer.exhaust(outputStream)
     expect(writer.exhausted).toBe(true)
   }
 
@@ -301,6 +332,7 @@ testable class {
     writer.write(outputStream, IdentifierNode(name: ident("local")))
     writer.write(outputStream, AssignmentNode())
     writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
+    writer.exhaust(outputStream)
     writer.exhaust(outputStream)
 
     expect(outputStream.buffer).toBe([
@@ -328,6 +360,7 @@ testable class {
     writer.write(outputStream, IdentifierNode(name: ident("local")))
     writer.write(outputStream, AssignmentNode())
     writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
+    writer.exhaust(outputStream)
     writer.exhaust(outputStream)
     writer.exhaust(outputStream)
 
