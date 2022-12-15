@@ -31,8 +31,7 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, IdentifierNode(name: ident("test")))
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, IdentifierNode(name: ident("test")))
     writer.write(outputStream, IdentifierNode(name: ident("test2")))
 
     expect(outputStream.buffer).toBe([
@@ -50,11 +49,12 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, AssignmentNode())
-    writer.write(outputStream, IdentifierNode(name: ident("test2")))
+    writer.writeAll(outputStream, [
+      AssignmentNode(), IdentifierNode(name: ident("test2")),
+    ])
 
-    expect(outputStream.buffer).toBe([ sym("="),
-      ident("test2"),
+    expect(outputStream.buffer).toBe([
+      sym("="), ident("test2"),
     ])
     expect(writer.exhausted).toBe(false)
   }
@@ -67,11 +67,15 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-    writer.write(outputStream, IdentifierNode(name: ident("Bob")))
-    writer.write(outputStream, FieldNode())
-    writer.write(outputStream, TypeNode(name: ident("String")))
-    writer.write(outputStream, IdentifierNode(name: ident("test")))
+    writer.writeAll(outputStream, [
+      ClassNode(type: ident("class")),
+      IdentifierNode(name: ident("Bob")),
+    ])
+    writer.writeAll(outputStream, [
+      FieldNode(),
+      TypeNode(name: ident("String")),
+      IdentifierNode(name: ident("test")),
+    ])
 
     expect(outputStream.buffer).toBe([
       ident("class"), ident("Bob"), sym("{"),
@@ -88,10 +92,12 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-    writer.write(outputStream, FieldNode())
-    writer.write(outputStream, TypeNode(name: ident("String")))
-    writer.write(outputStream, IdentifierNode(name: ident("test")))
+    writer.writeAll(outputStream, [
+      ClassNode(type: ident("class")),
+      FieldNode(),
+      TypeNode(name: ident("String")),
+      IdentifierNode(name: ident("test")),
+    ])
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
@@ -107,12 +113,13 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-      writer.write(outputStream, FieldNode())
-      writer.write(outputStream, TypeNode(name: ident("String")))
-      writer.write(outputStream, IdentifierNode(name: ident("test")))
-      writer.exhaust(outputStream)
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, ClassNode(type: ident("class")), {
+      writer.writeStatement(outputStream, [
+        FieldNode(),
+        TypeNode(name: ident("String")),
+        IdentifierNode(name: ident("test")),
+      ])
+    })
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
@@ -129,8 +136,7 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, ClassNode(type: ident("class")))
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
@@ -146,11 +152,12 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-      writer.write(outputStream, FunctionNode())
-      writer.write(outputStream, IdentifierNode(name: ident("test")))
-      writer.exhaust(outputStream)
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, ClassNode(type: ident("class")), {
+      writer.writeStatement(outputStream, [
+        FunctionNode(),
+        IdentifierNode(name: ident("test")),
+      ])
+    })
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
@@ -168,12 +175,13 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-      writer.write(outputStream, PublicModifier(aliasUsed: ident("public")))
-      writer.write(outputStream, FunctionNode())
-      writer.write(outputStream, IdentifierNode(name: ident("test")))
-      writer.exhaust(outputStream)
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, ClassNode(type: ident("class")), {
+      writer.writeStatement(outputStream, [
+        PublicModifier(aliasUsed: ident("public")),
+        FunctionNode(),
+        IdentifierNode(name: ident("test")),
+      ])
+    })
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
@@ -191,13 +199,14 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-      writer.write(outputStream, PublicModifier(aliasUsed: ident("public")))
-      writer.write(outputStream, StaticModifier(aliasUsed: ident("static")))
-      writer.write(outputStream, FunctionNode())
-      writer.write(outputStream, IdentifierNode(name: ident("test")))
-      writer.exhaust(outputStream)
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, ClassNode(type: ident("class")), {
+      writer.writeStatement(outputStream, [
+        PublicModifier(aliasUsed: ident("public")),
+        StaticModifier(aliasUsed: ident("static")),
+        FunctionNode(),
+        IdentifierNode(name: ident("test")),
+      ])
+    })
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
@@ -215,9 +224,10 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, FunctionNode())
-    writer.write(outputStream, IdentifierNode(name: ident("test")))
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, [
+      FunctionNode(),
+      IdentifierNode(name: ident("test")),
+    ])
 
     expect(outputStream.buffer).toBe([
       ident("test"), sym("("), sym(")"), sym("{"),
@@ -234,10 +244,11 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
-    writer.write(outputStream, LocalDeclarationNode())
-    writer.write(outputStream, IdentifierNode(name: ident("local")))
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, [
+      LetModifier(aliasUsed: ident("let")),
+      LocalDeclarationNode(),
+      IdentifierNode(name: ident("local")),
+    ])
 
     expect(outputStream.buffer).toBe([
       ident("let"), ident("local"),
@@ -257,12 +268,13 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
-    writer.write(outputStream, LocalDeclarationNode())
-    writer.write(outputStream, IdentifierNode(name: ident("local")))
-    writer.write(outputStream, AssignmentNode())
-    writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, [
+      LetModifier(aliasUsed: ident("let")),
+      LocalDeclarationNode(),
+      IdentifierNode(name: ident("local")),
+      AssignmentNode(),
+      StringLiteralNode(value: str("\"hello, world!\"")),
+    ])
 
     expect(outputStream.buffer).toBe([
       ident("let"), ident("local"), sym("="), str("\"hello, world!\""),
@@ -279,11 +291,12 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, FunctionNode())
-    writer.write(outputStream, IdentifierNode(name: ident("test")))
-      writer.write(outputStream, IdentifierNode(name: ident("hey")))
-      writer.exhaust(outputStream)
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, [
+      FunctionNode(),
+      IdentifierNode(name: ident("test"))
+    ], {
+      writer.writeStatement(outputStream, IdentifierNode(name: ident("hey")))
+    })
 
     expect(outputStream.buffer).toBe([
       ident("test"), sym("("), sym(")"), sym("{"),
@@ -300,10 +313,9 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, IdentifierNode(name: ident("local")))
-    writer.write(outputStream, AssignmentNode())
-    writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, [
+      IdentifierNode(name: ident("local")), AssignmentNode(), StringLiteralNode(value: str("\"hello, world!\"")),
+    ])
 
     expect(outputStream.buffer).toBe([
       ident("local"), sym("="), str("\"hello, world!\""),
@@ -320,15 +332,18 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, FunctionNode())
-      writer.write(outputStream, IdentifierNode(name: ident("test")))
-        writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
-        writer.write(outputStream, LocalDeclarationNode())
-        writer.write(outputStream, IdentifierNode(name: ident("local")))
-        writer.write(outputStream, AssignmentNode())
-        writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
-        writer.exhaust(outputStream)
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, [
+      FunctionNode(),
+      IdentifierNode(name: ident("test"))
+    ], {
+      writer.writeStatement(outputStream, [
+        LetModifier(aliasUsed: ident("let")),
+        LocalDeclarationNode(),
+        IdentifierNode(name: ident("local")),
+        AssignmentNode(),
+        StringLiteralNode(value: str("\"hello, world!\"")),
+      ])
+    })
 
     expect(outputStream.buffer).toBe([
       ident("test"), sym("("), sym(")"), sym("{"),
@@ -345,19 +360,22 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-      writer.write(outputStream, PublicModifier(aliasUsed: ident("public")))
-      writer.write(outputStream, StaticModifier(aliasUsed: ident("static")))
-      writer.write(outputStream, FunctionNode())
-      writer.write(outputStream, IdentifierNode(name: ident("test")))
-        writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
-        writer.write(outputStream, LocalDeclarationNode())
-        writer.write(outputStream, IdentifierNode(name: ident("local")))
-        writer.write(outputStream, AssignmentNode())
-        writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
-        writer.exhaust(outputStream)
-      writer.exhaust(outputStream)
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, ClassNode(type: ident("class")), {
+      writer.writeStatement(outputStream, [
+        PublicModifier(aliasUsed: ident("public")),
+        StaticModifier(aliasUsed: ident("static")),
+        FunctionNode(),
+        IdentifierNode(name: ident("test")),
+      ], {
+        writer.writeStatement(outputStream, [
+          LetModifier(aliasUsed: ident("let")),
+          LocalDeclarationNode(),
+          IdentifierNode(name: ident("local")),
+          AssignmentNode(),
+          StringLiteralNode(value: str("\"hello, world!\"")),
+        ])
+      })
+    })
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
@@ -376,33 +394,36 @@ testable class {
     ])
     let writer = NodeGroupTokenWriter(pattern)
 
-    writer.write(outputStream, ClassNode(type: ident("class")))
-      writer.write(outputStream, PublicModifier(aliasUsed: ident("public")))
-      writer.write(outputStream, StaticModifier(aliasUsed: ident("static")))
-      writer.write(outputStream, FunctionNode())
-        writer.write(outputStream, IdentifierNode(name: ident("test")))
-          writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
-          writer.write(outputStream, LocalDeclarationNode())
-          writer.write(outputStream, IdentifierNode(name: ident("local")))
-          writer.write(outputStream, AssignmentNode())
-          writer.write(outputStream, StringLiteralNode(value: str("\"hello, world!\"")))
-          writer.exhaust(outputStream)
-
-          writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
-          writer.write(outputStream, LocalDeclarationNode())
-          writer.write(outputStream, IdentifierNode(name: ident("local2")))
-          writer.write(outputStream, AssignmentNode())
-          writer.write(outputStream, StringLiteralNode(value: str("\"hello, world2!\"")))
-          writer.exhaust(outputStream)
-
-          writer.write(outputStream, LetModifier(aliasUsed: ident("let")))
-          writer.write(outputStream, LocalDeclarationNode())
-          writer.write(outputStream, IdentifierNode(name: ident("local3")))
-          writer.write(outputStream, AssignmentNode())
-          writer.write(outputStream, StringLiteralNode(value: str("\"hello, world3!\"")))
-          writer.exhaust(outputStream)
-      writer.exhaust(outputStream)
-    writer.exhaust(outputStream)
+    writer.writeStatement(outputStream, ClassNode(type: ident("class")), {
+      writer.writeStatement(outputStream, [
+        PublicModifier(aliasUsed: ident("public")),
+        StaticModifier(aliasUsed: ident("static")),
+        FunctionNode(),
+        IdentifierNode(name: ident("test")),
+      ], {
+        writer.writeStatement(outputStream, [
+          LetModifier(aliasUsed: ident("let")),
+          LocalDeclarationNode(),
+          IdentifierNode(name: ident("local")),
+          AssignmentNode(),
+          StringLiteralNode(value: str("\"hello, world!\"")),
+        ])
+        writer.writeStatement(outputStream, [
+          LetModifier(aliasUsed: ident("let")),
+          LocalDeclarationNode(),
+          IdentifierNode(name: ident("local2")),
+          AssignmentNode(),
+          StringLiteralNode(value: str("\"hello, world2!\"")),
+        ])
+        writer.writeStatement(outputStream, [
+          LetModifier(aliasUsed: ident("let")),
+          LocalDeclarationNode(),
+          IdentifierNode(name: ident("local3")),
+          AssignmentNode(),
+          StringLiteralNode(value: str("\"hello, world3!\"")),
+        ])
+      })
+    })
 
     expect(outputStream.buffer).toBe([
       ident("class"), sym("{"),
