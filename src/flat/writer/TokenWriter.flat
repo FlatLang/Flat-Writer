@@ -18,6 +18,34 @@ abstract data class {
 
   abstract public write(WriterOutputStream output, Node node)
 
+  public writeAll(WriterOutputStream output, Node[] nodes) {
+    nodes.forEach({
+      write(output, _)
+    })
+  }
+
+  public writeStatement(WriterOutputStream output, Node node) {
+    write(output, node)
+    exhaust(output)
+  }
+
+  public writeStatement(WriterOutputStream output, Node[] nodes) {
+    writeAll(output, nodes)
+    exhaust(output)
+  }
+
+  public writeStatement(WriterOutputStream output, Node node, func()) {
+    write(output, node)
+    func()
+    exhaust(output)
+  }
+
+  public writeStatement(WriterOutputStream output, Node[] nodes, func()) {
+    writeAll(output, nodes)
+    func()
+    exhaust(output)
+  }
+
   public exhaust(WriterOutputStream output) => true {
     log.infoFunc({"Ending current writer"})
   }
