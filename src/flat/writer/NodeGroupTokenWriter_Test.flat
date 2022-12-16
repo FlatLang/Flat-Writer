@@ -453,6 +453,35 @@ testable class {
     expect(writer.exhausted).toBe(true)
   }
 
+  test `can write function with parameter`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      FunctionParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern, outputStream)
+
+    writer.writeStatement([
+      FunctionNode(),
+      IdentifierNode(name: ident("test")),
+    ], {
+      writer.writeStatement([
+        ParametersNode(),
+      ], {
+        writer.writeStatement([
+          ParameterNode(),
+          TypeNode(name: ident("Type")),
+          IdentifierNode(name: ident("param")),
+        ])
+      })
+    })
+
+    expect(outputStream.buffer).toBe([
+      ident("test"), sym("("), ident("Type"), ident("param"), sym(")"), sym("{"),
+      sym("}"),
+    ])
+    expect(writer.exhausted).toBe(true)
+  }
+
   ident(String value) => Token(value: value, type: Token.Type.IDENTIFIER)
   sym(String value) => Token(value: value, type: Token.Type.SYMBOL)
   str(String value) => Token(value: value, type: Token.Type.STRING)
