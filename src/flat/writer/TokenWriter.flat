@@ -15,6 +15,8 @@ abstract data class {
   var Bool _exhausted = false
   visible var Bool exhausted <=> _exhausted
 
+  lazy Bool bareNodePattern => pattern.getNodeType() == Node.class
+
   lazy BufferWriterOutputStream buffer => BufferWriterOutputStream()
 
   abstract public write(WriterOutputStream output, Node node)
@@ -59,10 +61,10 @@ abstract data class {
   public writeStatement(Node[] nodes, func()) => writeStatement(output, nodes, func)
   public exhaust() => exhaust(output)
 
-  public validNode(Node node) => pattern.getNodeType() != Node.class && node.class.isOfType(pattern.getNodeType())
+  public validNode(Node node) => !bareNodePattern && node.class.isOfType(pattern.getNodeType())
   public validNodes(Node[] nodes) => nodes.all({ validNode(_) })
 
-  public consumesNode() => pattern.getNodeType() != Node.class
+  public consumesNode() => !bareNodePattern
   public requiresNode() => !pattern.optional && consumesNode()
   public writePrimitiveTokens(WriterOutputStream output, Node node) => true {
     log.infoFunc({"Writing primitive Tokens #{magenta(pattern.toPatternString())}"})
