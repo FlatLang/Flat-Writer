@@ -14,9 +14,9 @@ testable class {
     let pattern = GroupTokenPattern([
       SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test")
     ])
-    let writer = GroupTokenWriter(pattern)
+    let writer = GroupTokenWriter(pattern, outputStream)
 
-    writer.write(outputStream, Node())
+    writer.write(Node())
 
     expect(outputStream.buffer).toBe([
       Token(type: Token.Type.IDENTIFIER, value: "test"),
@@ -29,9 +29,9 @@ testable class {
     let pattern = GroupTokenPattern([
       SingleTokenPattern(type: Token.Type.IDENTIFIER, field: "name")
     ])
-    let writer = GroupTokenWriter(pattern)
+    let writer = GroupTokenWriter(pattern, outputStream)
 
-    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "bob")))
+    writer.write(IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "bob")))
 
     expect(outputStream.buffer).toBe([
       Token(type: Token.Type.IDENTIFIER, value: "bob"),

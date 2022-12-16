@@ -20,11 +20,11 @@ testable class {
         IdentifierParser().pattern,
       ])
     ])
-    let writer = XorTokenWriter(pattern)
+    let writer = XorTokenWriter(pattern, outputStream)
 
-    writer.write(outputStream, LocalDeclarationNode())
-    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
-    writer.exhaust(outputStream)
+    writer.write(LocalDeclarationNode())
+    writer.write(IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
+    writer.exhaust()
 
     expect(outputStream.buffer).toBe([
       Token(type: Token.Type.IDENTIFIER, value: "local"),
@@ -43,12 +43,12 @@ testable class {
         IdentifierParser().pattern,
       ])
     ])
-    let writer = XorTokenWriter(pattern)
+    let writer = XorTokenWriter(pattern, outputStream)
 
-    writer.write(outputStream, LocalDeclarationNode())
-    writer.write(outputStream, TypeNode(name: Token(type: Token.Type.IDENTIFIER, value: "String")))
-    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
-    writer.exhaust(outputStream)
+    writer.write(LocalDeclarationNode())
+    writer.write(TypeNode(name: Token(type: Token.Type.IDENTIFIER, value: "String")))
+    writer.write(IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
+    writer.exhaust()
 
     expect(outputStream.buffer).toBe([
       Token(type: Token.Type.IDENTIFIER, value: "String"),
@@ -65,11 +65,11 @@ testable class {
         IdentifierParser().pattern,
       ]),
     ])
-    let writer = XorTokenWriter(pattern)
+    let writer = XorTokenWriter(pattern, outputStream)
 
-    writer.write(outputStream, LocalDeclarationNode())
-    writer.write(outputStream, IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
-    writer.exhaust(outputStream)
+    writer.write(LocalDeclarationNode())
+    writer.write(IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "local")))
+    writer.exhaust()
 
     expect(outputStream.buffer).toBe([
       Token(type: Token.Type.IDENTIFIER, value: "local"),

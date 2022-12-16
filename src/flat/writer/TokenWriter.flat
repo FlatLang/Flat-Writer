@@ -10,6 +10,7 @@ abstract data class {
   static Logger log = Logger(Writer.class)
 
   visible TokenPattern pattern
+  visible WriterOutputStream output
 
   var Bool _exhausted = false
   visible var Bool exhausted <=> _exhausted
@@ -49,6 +50,14 @@ abstract data class {
   public exhaust(WriterOutputStream output) => true {
     log.infoFunc({"Ending current writer"})
   }
+
+  public write(Node node) => write(output, node)
+  public writeAll(Node[] nodes) => writeAll(output, nodes)
+  public writeStatement(Node node) => writeStatement(output, node)
+  public writeStatement(Node[] nodes) => writeStatement(output, nodes)
+  public writeStatement(Node node, func()) => writeStatement(output, node, func)
+  public writeStatement(Node[] nodes, func()) => writeStatement(output, nodes, func)
+  public exhaust() => exhaust(output)
 
   public validNode(Node node) => pattern.getNodeType() != Node.class && node.class.isOfType(pattern.getNodeType())
   public validNodes(Node[] nodes) => nodes.all({ validNode(_) })
