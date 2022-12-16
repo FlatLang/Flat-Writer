@@ -59,6 +59,22 @@ testable class {
     expect(writer.exhausted).toBe(false)
   }
 
+  test `can write klass with name`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([ClassParser()])
+    let writer = NodeGroupTokenWriter(pattern, outputStream)
+
+    writer.writeAll([
+      ClassNode(type: ident("class")),
+      IdentifierNode(name: ident("Bob")),
+    ])
+
+    expect(outputStream.buffer).toBe([
+      ident("class"), ident("Bob"),
+    ])
+    expect(writer.exhausted).toBe(false)
+  }
+
   test `can write klass with name then field`() {
     let outputStream = TestOutputStream()
     let pattern = NodeGroupTokenPattern([
