@@ -28,7 +28,18 @@ data class extends TokenWriter {
 
   override public validNode(Node node) -> Bool {
     if (node == null) return false
-    if (currentWriter == null) searchCurrentWriter(node)
+    if (currentWriter == null) {
+      log.infoFunc({"Current writer is null. Seacrhing current writer"})
+      searchCurrentWriter(node)
+
+      if (currentWriter) {
+        log.infoFunc({"Current writer found. Valid"})
+        return true
+      } else {
+        log.infoFunc({"Current writer not found. Invalid"})
+        return false
+      }
+    }
     if (super.validNode(node)) return true
 
     log.infoFunc({"Checking node type #{green(node.class.name)} against writer #{magenta(currentWriter?.pattern.toPatternString())}"})
