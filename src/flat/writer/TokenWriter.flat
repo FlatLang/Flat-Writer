@@ -27,6 +27,13 @@ abstract data class {
     })
   }
 
+  public writeAll(WriterOutputStream output, Node[] nodes, func()) {
+    nodes.forEach({
+      write(output, _)
+    })
+    func()
+  }
+
   public writeStatement(WriterOutputStream output, Node node) {
     write(output, node)
     exhaust(output)
@@ -55,6 +62,7 @@ abstract data class {
 
   public write(Node node) => write(output, node)
   public writeAll(Node[] nodes) => writeAll(output, nodes)
+  public writeAll(Node[] nodes, func()) => writeAll(output, nodes, func)
   public writeStatement(Node node) => writeStatement(output, node)
   public writeStatement(Node[] nodes) => writeStatement(output, nodes)
   public writeStatement(Node node, func()) => writeStatement(output, node, func)
