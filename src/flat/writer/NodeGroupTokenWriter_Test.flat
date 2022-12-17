@@ -467,7 +467,7 @@ testable class {
       writer.writeStatement([
         ParametersNode(),
       ], {
-        writer.writeStatement([
+        writer.writeAll([
           ParameterNode(),
           TypeNode(name: ident("Type")),
           IdentifierNode(name: ident("param")),
@@ -477,6 +477,86 @@ testable class {
 
     expect(outputStream.buffer).toBe([
       ident("test"), sym("("), ident("Type"), ident("param"), sym(")"), sym("{"),
+      sym("}"),
+    ])
+    expect(writer.exhausted).toBe(true)
+  }
+
+  test `can write function with two parameters`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      FunctionParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern, outputStream)
+
+    writer.writeStatement([
+      FunctionNode(),
+      IdentifierNode(name: ident("test")),
+    ], {
+      writer.writeStatement([
+        ParametersNode(),
+      ], {
+        writer.writeAll([
+          ParameterNode(),
+          TypeNode(name: ident("Type")),
+          IdentifierNode(name: ident("param")),
+        ])
+        writer.writeAll([
+          ParameterNode(),
+          TypeNode(name: ident("Type2")),
+          IdentifierNode(name: ident("param2")),
+        ])
+      })
+    })
+
+    expect(outputStream.buffer).toBe([
+      ident("test"), sym("("),
+        ident("Type"), ident("param"), sym(","),
+        ident("Type2"), ident("param2"),
+      sym(")"), sym("{"),
+      sym("}"),
+    ])
+    expect(writer.exhausted).toBe(true)
+  }
+
+  test `can write function with three parameters`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([
+      FunctionParser(),
+    ])
+    let writer = NodeGroupTokenWriter(pattern, outputStream)
+
+    writer.writeStatement([
+      FunctionNode(),
+      IdentifierNode(name: ident("test")),
+    ], {
+      writer.writeStatement([
+        ParametersNode(),
+      ], {
+        writer.writeAll([
+          ParameterNode(),
+          TypeNode(name: ident("Type")),
+          IdentifierNode(name: ident("param")),
+        ])
+        writer.writeAll([
+          ParameterNode(),
+          TypeNode(name: ident("Type2")),
+          IdentifierNode(name: ident("param2")),
+        ])
+        writer.writeAll([
+          ParameterNode(),
+          TypeNode(name: ident("Type3")),
+          IdentifierNode(name: ident("param3")),
+        ])
+      })
+    })
+
+    expect(outputStream.buffer).toBe([
+      ident("test"), sym("("),
+        ident("Type"), ident("param"), sym(","),
+        ident("Type2"), ident("param2"), sym(","),
+        ident("Type3"), ident("param3"),
+      sym(")"), sym("{"),
       sym("}"),
     ])
     expect(writer.exhausted).toBe(true)

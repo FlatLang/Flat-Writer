@@ -90,4 +90,10 @@ data class extends TokenWriter {
 
     exhausted = writer.exhausted
   }
+
+  override public reset() {
+    super.reset()
+
+    writer = null
+  }
 }

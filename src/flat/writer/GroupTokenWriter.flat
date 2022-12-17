@@ -207,7 +207,14 @@ data class extends TokenWriter {
     innerWrite(output, node)
 
     if (currentWriter.exhausted) {
-      if (hasNextWriter()) {
+      if (currentWriter.pattern.repeat) {
+        currentWriter.reset()
+        wasRepeat = true
+        log.infoFunc({"|
+          Repeating current writer
+            pattern: #{magenta(currentWriter.pattern.toPatternString())}
+          |"})
+      } else if (hasNextWriter()) {
         log.infoFunc({"Current writer is exhausted, getting next writer"})
         nextWriter()
       } else {
