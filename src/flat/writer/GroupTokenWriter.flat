@@ -80,7 +80,10 @@ data class extends TokenWriter {
       if (!currentWriter.requiresNode()) {
         Logger.increaseTab()
         currentWriter.writePrimitiveTokens(output, null)
-        currentWriter.exhaust(output)
+        if (!currentWriter.exhaust(output)) {
+          Logger.decreaseTab()
+          return false
+        }
         Logger.decreaseTab()
       }
     }
