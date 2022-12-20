@@ -15,7 +15,6 @@ data class extends TokenWriter {
 
   GroupTokenPattern pattern
 
-  var Bool wasRepeat = false
   var TokenWriter currentWriter
   var Node parentNode
 
@@ -101,6 +100,7 @@ data class extends TokenWriter {
     log.infoFunc({"|
       Switched to next writer pattern: #{magenta(currentWriter.pattern.toPatternString())}
         pattern: #{magenta(pattern.toPatternString())}
+        wasRepeat: #{wasRepeat}
       |"})
   }
 
@@ -169,6 +169,7 @@ data class extends TokenWriter {
       log.infoFunc({"|
         Node #{green(node.class.name)} is not valid for writer.
           pattern: #{magenta(currentWriter.pattern.toPatternString())}
+          wasRepeat: #{currentWriter.wasRepeat}
         |"})
       currentWriter = writer
       log.infoFunc({"Clearing buffered data: #{buffer.buffer}"})
@@ -197,6 +198,7 @@ data class extends TokenWriter {
       validCurrentWriter:
         valid: #{currentValid}
         pattern: #{magenta(currentWriter.pattern.toPatternString())}
+        wasRepeat: #{currentWriter.wasRepeat}
       |"})
     Logger.decreaseTab()
 
@@ -216,6 +218,7 @@ data class extends TokenWriter {
         log.infoFunc({"|
           Repeating current writer
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
+            wasRepeat: #{currentWriter.wasRepeat}
           |"})
       } else if (hasNextWriter()) {
         log.infoFunc({"Current writer is exhausted, getting next writer"})
@@ -252,6 +255,7 @@ data class extends TokenWriter {
         log.infoFunc({"|
           Node #{green(node?.class.name)} is not valid for current writer #{green(currentWriter.class.name)}. Awaiting child node
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
+            wasRepeat: #{currentWriter.wasRepeat}
           |"})
         return
       }
@@ -262,6 +266,7 @@ data class extends TokenWriter {
     log.infoFunc({"|
       Writing node #{green(node?.class.name)} to currentWriter #{green(currentWriter.class.name)}
         pattern: #{magenta(currentWriter.pattern.toPatternString())}
+        wasRepeat: #{currentWriter.wasRepeat}
       |"})
     Logger.increaseTab()
     currentWriter.write(output, node)
@@ -275,6 +280,7 @@ data class extends TokenWriter {
       log.infoFunc({"|
         Writing primitive Token to currentWriter #{green(currentWriter.class.name)}
           pattern: #{magenta(currentWriter.pattern.toPatternString())}
+          wasRepeat: #{currentWriter.wasRepeat}
         |"})
       Logger.increaseTab()
       currentWriter.writePrimitiveTokens(output, node)
@@ -292,7 +298,6 @@ data class extends TokenWriter {
   override public reset() {
     super.reset()
 
-    wasRepeat = false
     currentWriter = null
     iterator.reset()
     writers.forEach({ _.reset() })
