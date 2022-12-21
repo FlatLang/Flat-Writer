@@ -24,7 +24,7 @@ data class extends TokenWriter {
 
   var TokenWriter currentWriter
   var ParserBase currentParser
-  var Bool awaitingChild
+  var Bool awaitingChild = true
 
   override public validNode(Node node) -> Bool {
     if (node == null) return false
@@ -53,31 +53,35 @@ data class extends TokenWriter {
 
   override public consumesNode() => true
 
-  override public exhaust(WriterOutputStream output) => true {
+  override public exhaust(WriterOutputStream output) => false {
     log.infoFunc({"Ending current writer"})
 
-    if (!awaitingChild) {
-      if (currentWriter) {
-        Logger.increaseTab()
-        if (!currentWriter.exhaust(output)) {
-          Logger.decreaseTab()
-          return false
-        }
-        Logger.decreaseTab()
-        currentWriter = null
-      }
-
-      exhausted = true
-      currentParser = null
-
-      return true
-    } else {
-      log.infoFunc({"Was awaiting child"})
+    if (awaitingChild) {
+      log.infoFunc({"Was awaiting child. Returning false"})
       awaitingChild = false
-      currentParser = null
-
       return false
     }
+
+    if (!currentParser) {
+      exhausted = true
+      log.infoFunc({"Ended whole node group"})
+      return true
+    } else if (!currentWriter) {
+      currentParser = null
+      log.infoFunc({"Ended statement"})
+      return false
+    }
+
+    Logger.increaseTab()
+    if (!currentWriter.exhaust(output)) {
+      Logger.decreaseTab()
+      log.infoFunc({"Current writer is not exhausted. Returning false"})
+      return false
+    }
+    Logger.decreaseTab()
+    currentWriter = null
+    currentParser = null
+    log.infoFunc({"Current writer is exhausted. Returning false"})
   }
 
   initMaps() {
@@ -102,6 +106,8 @@ data class extends TokenWriter {
   }
 
   searchCurrentWriter(Node node) {
+    awaitingChild = false
+
     if (writerMap.isEmpty) {
       initMaps()
     }
@@ -139,10 +145,6 @@ data class extends TokenWriter {
       } else {
         log.infoFunc({"Got writer from isOfType #{green(writerMap.firstWhere(w => node.class.isOfType(w.key)).key.name)}"})
       }
-    }
-
-    if (currentParser?.childParsers) {
-      awaitingChild = true
     }
   }
 
@@ -196,7 +198,7 @@ data class extends TokenWriter {
   override public reset() {
     super.reset()
 
-    awaitingChild = false
+    awaitingChild = true
     currentWriter = null
     currentParser = null
   }

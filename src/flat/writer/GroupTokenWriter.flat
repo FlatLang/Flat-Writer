@@ -64,29 +64,69 @@ data class extends TokenWriter {
   override public exhaust(WriterOutputStream output) => true {
     log.infoFunc({"Ending current writer #{magenta(pattern.toPatternString())}"})
 
-    if (currentWriter && !currentWriter.requiresNode()) {
+    if (!currentWriter) {
+      log.infoFunc({"|
+        No current writer
+          wasRepeat: #{wasRepeat}
+        |"})
+    } else if (currentWriter.requiresNode()) {
+      log.infoFunc({"|
+        Current writer requires node
+          pattern: #{magenta(currentWriter.pattern.toPatternString())}
+          wasRepeat: #{wasRepeat}
+        |"})
+    } else {
       Logger.increaseTab()
       if (!currentWriter.exhaust(output)) {
         Logger.decreaseTab()
+        log.infoFunc({"|
+          Current writer is not exhausted. Returning false
+            pattern: #{magenta(currentWriter.pattern.toPatternString())}
+            wasRepeat: #{wasRepeat}
+          |"})
         return false
       }
       Logger.decreaseTab()
     }
 
+    let prefix = Logger.DEFAULT_LINE_PREFIX
     while (hasNextWriter()) {
+      Logger.DEFAULT_LINE_PREFIX = prefix
+      Logger.increaseTab()
       nextWriter()
 
-      if (!currentWriter.requiresNode()) {
-        Logger.increaseTab()
-        currentWriter.writePrimitiveTokens(output, null)
-        if (!currentWriter.exhaust(output)) {
-          Logger.decreaseTab()
-          return false
-        }
-        Logger.decreaseTab()
+      if (currentWriter.wasRepeat) continue
+      if (currentWriter.requiresNode()) {
+        if (currentWriter.pattern.optional) continue
+        if (currentWriter.exhaust(output)) continue
+        Logger.DEFAULT_LINE_PREFIX = prefix
+        log.infoFunc({"|
+          Current required writer requires node. Returning false
+            pattern: #{magenta(currentWriter.pattern.toPatternString())}
+            wasRepeat: #{wasRepeat}
+          |"})
+        return false
+      }
+
+      currentWriter.writePrimitiveTokens(output, null)
+      let successfulEnd = currentWriter.exhaust(output)
+
+      if (!successfulEnd) {
+        Logger.DEFAULT_LINE_PREFIX = prefix
+        log.infoFunc({"|
+          Current writer is not exhausted. Returning false
+            pattern: #{magenta(currentWriter.pattern.toPatternString())}
+            wasRepeat: #{wasRepeat}
+          |"})
+        return false
       }
     }
+    Logger.DEFAULT_LINE_PREFIX = prefix
 
+    log.infoFunc({"|
+      Successfully exhausted writer
+        pattern: #{magenta(pattern.toPatternString())}
+      |"})
     exhausted = true
   }
 

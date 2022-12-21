@@ -21,6 +21,19 @@ abstract data class {
 
   lazy BufferWriterOutputStream buffer => BufferWriterOutputStream()
 
+  public write(Node node) => write(output, node)
+  public writeAll(Node[] nodes) => writeAll(output, nodes)
+  public writeAll(Node[] nodes, func()) => writeAll(output, nodes, func)
+  public writeStatement(Node node) => writeStatement(output, node)
+  public writeStatement(Node[] nodes) => writeStatement(output, nodes)
+  public writeStatement(Node node, func()) => writeStatement(output, node, func)
+  public writeStatement(Node[] nodes, func()) => writeStatement(output, nodes, func)
+  public writeStatementBlock() => writeStatementBlock(output)
+  public writeStatementBlock(func()) => writeStatementBlock(output, func)
+  public writeStatementBlock(Node node, func()) => writeStatementBlock(output, node, func)
+  public writeStatementBlock(Node[] nodes, func()) => writeStatementBlock(output, nodes, func)
+  public exhaust() => exhaust(output)
+
   abstract public write(WriterOutputStream output, Node node)
 
   public writeAll(WriterOutputStream output, Node[] nodes) {
@@ -58,18 +71,32 @@ abstract data class {
     exhaust(output)
   }
 
+  public writeStatementBlock(WriterOutputStream output) {
+    exhaust(output)
+  }
+
+  public writeStatementBlock(WriterOutputStream output, func()) {
+    func()
+    exhaust(output)
+  }
+
+  public writeStatementBlock(WriterOutputStream output, Node node, func()) {
+    write(output, node)
+    exhaust(output)
+    func()
+    exhaust(output)
+  }
+
+  public writeStatementBlock(WriterOutputStream output, Node[] nodes, func()) {
+    writeAll(output, nodes)
+    exhaust(output)
+    func()
+    exhaust(output)
+  }
+
   public exhaust(WriterOutputStream output) => true {
     log.infoFunc({"Ending current writer"})
   }
-
-  public write(Node node) => write(output, node)
-  public writeAll(Node[] nodes) => writeAll(output, nodes)
-  public writeAll(Node[] nodes, func()) => writeAll(output, nodes, func)
-  public writeStatement(Node node) => writeStatement(output, node)
-  public writeStatement(Node[] nodes) => writeStatement(output, nodes)
-  public writeStatement(Node node, func()) => writeStatement(output, node, func)
-  public writeStatement(Node[] nodes, func()) => writeStatement(output, nodes, func)
-  public exhaust() => exhaust(output)
 
   public validNode(Node node) => !bareNodePattern && node.class.isOfType(pattern.getNodeType())
   public validNodes(Node[] nodes) => nodes.all({ validNode(_) })

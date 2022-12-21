@@ -49,6 +49,11 @@ data class extends TokenWriter {
       Logger.increaseTab()
       if (!writer.exhaust(output)) {
         Logger.decreaseTab()
+        log.infoFunc({"|
+          Writer not exhausted. Returning false
+            pattern: #{magenta(writer.pattern.toPatternString())}
+            wasRepeat: #{wasRepeat}
+          |"})
         return false
       }
       Logger.decreaseTab()
