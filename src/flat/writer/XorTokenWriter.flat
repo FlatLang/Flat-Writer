@@ -95,7 +95,7 @@ data class extends TokenWriter {
   }
 
   searchWriterForNodeBuffer() => writer {
-    log.infoFunc({"Searching for match for buffer [#{nodeBuffer.map(n => green(n.class.name)).join(", ")}]"})
+    log.infoFunc({"Searching for match for buffer [#{nodeBuffer.map(n => green(n.class.name)).join(", ", 25)}]"})
 
     if (nodeBuffer.isEmpty) {
       log.infoFunc({"Did not find a match"})
@@ -116,7 +116,7 @@ data class extends TokenWriter {
   innerWrite(WriterOutputStream output, Node node) {
     if (nodeBuffer?.isNotEmpty) {
       nodeBuffer.removeLast()
-      log.infoFunc({"Writing buffered nodes: [#{nodeBuffer.map(n => green(n.class.name)).join(", ")}]"})
+      log.infoFunc({"Writing buffered nodes: [#{nodeBuffer.map(n => green(n.class.name)).join(", ", 25)}]"})
       nodeBuffer.forEach({ writer.write(output, _) })
       nodeBuffer = null
     }
