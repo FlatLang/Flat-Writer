@@ -28,7 +28,10 @@ data class extends TokenWriter {
     let valid = writer.validNode(node)
     Logger.decreaseTab()
 
-    log.infoFunc({"Node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())} is #{valid ? "" : "not "}valid"})
+    log.infoFunc({"|
+      Checked node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())}
+        valid: #{valid}
+      |"})
 
     return valid
   }

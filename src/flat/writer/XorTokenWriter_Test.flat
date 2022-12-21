@@ -76,4 +76,27 @@ testable class {
     ])
     expect(writer.exhausted).toBe(true)
   }
+
+  test `can write basic type from multiple valid patterns`() {
+    let outputStream = TestOutputStream()
+    let pattern = XorTokenPattern([
+      GroupTokenPattern([
+        NodeTokenPattern([ValueTypeParser()]),
+        GroupTokenPattern([
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "extends"),
+          NodeTokenPattern([ValueTypeParser()]),
+        ], optional: true),
+      ]),
+      NodeTokenPattern([FunctionTypeParser()]),
+    ])
+    let writer = XorTokenWriter(pattern, outputStream)
+
+    writer.write(TypeNode(name: Token(type: Token.Type.IDENTIFIER, value: "E")))
+    writer.exhaust()
+
+    expect(outputStream.buffer).toBe([
+      Token(type: Token.Type.IDENTIFIER, value: "E"),
+    ])
+    expect(writer.exhausted).toBe(true)
+  }
 }

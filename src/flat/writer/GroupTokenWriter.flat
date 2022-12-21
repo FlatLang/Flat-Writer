@@ -25,26 +25,40 @@ data class extends TokenWriter {
 
   lazy ArrayIterator<TokenWriter> iterator => writers.iterator
 
-  override public validNodes(Node[] nodes) => true {
+  override public validNodes(Node[] nodes, Bool allowPartial = false) => true {
     log.traceFunc({"Checking if nodes are valid [#{nodes.map(n => green(n.class.name)).join(", ")}] for pattern #{magenta(pattern.toPatternString())}"})
     let it = writers.filter({ _.consumesNode() }).iterator
 
     for (node in nodes) {
-      if (!it.hasNext) return false
+      if (!it.hasNext) {
+        log.traceFunc({"No more writers. Returning false"})
+        return false
+      }
       it.stepNext
 
       log.traceFunc({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
-      while (!it.current.validNode(node)) {
+      Logger.increaseTab()
+      if (!it.current.validNode(node)) {
+        Logger.decreaseTab()
         log.traceFunc({"Node #{green(node.class.name)} is not valid"})
         if (!it.hasNext || !it.current.pattern.optional) return false
 
         it.stepNext
         log.traceFunc({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
+        Logger.increaseTab()
       }
+      Logger.decreaseTab()
+    }
+
+    if (allowPartial) {
+      log.traceFunc({"Allows partial match. Returning true"})
+      return true
     }
 
     while (it.hasNext) {
-      if (it.stepNext.requiresNode()) {
+      it.stepNext
+
+      if (!it.current.pattern.optional && it.current.requiresNode()) {
         log.traceFunc({"Missing required nodes for pattern #{magenta(pattern.toPatternString())}"})
         return false
       }
