@@ -234,11 +234,11 @@ data class extends TokenWriter {
 
   initCurrentWriter() => true {
     if (!currentWriter) {
-      log.infoFunc({"Initializing current writer"})
+      log.info({"Initializing current writer"})
       if (hasNextWriter()) {
         nextWriter()
       } else {
-        log.traceFunc({"No more writers. Exhausted"})
+        log.trace({"No more writers. Exhausted"})
         exhausted = true
         return false
       }
