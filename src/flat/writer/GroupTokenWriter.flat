@@ -260,6 +260,8 @@ data class extends TokenWriter {
   }
 
   override public write(WriterOutputStream output, Node node) {
+    log.info({"Attempting to write node #{green(node?.class.name)}"})
+
     if (exhausted) return
     if (!initCurrentWriter()) return
 
