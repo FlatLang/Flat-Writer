@@ -232,24 +232,16 @@ data class extends TokenWriter {
     }
   }
 
-  initCurrentWriter(Node node) => true {
-    if (currentWriter) return true
-
-    log.info({"Initializing current writer"})
-    if (hasNextWriter()) {
-      nextWriter()
-    } else {
-      log.trace({"No more writers. Exhausted"})
-      exhausted = true
-      return false
-    }
-
-    if (!bareNodePattern && iterator.position == 1) {
-      if (node.class != pattern.getNodeType()) {
-        log.warn({"Invalid node type for writer: #{green(node.class.name)} #{magenta(pattern.toPatternString())}"})
+  initCurrentWriter() => true {
+    if (!currentWriter) {
+      log.infoFunc({"Initializing current writer"})
+      if (hasNextWriter()) {
+        nextWriter()
+      } else {
+        log.traceFunc({"No more writers. Exhausted"})
+        exhausted = true
+        return false
       }
-
-      return false
     }
   }
 
@@ -271,7 +263,7 @@ data class extends TokenWriter {
     log.info({"Attempting to write node #{green(node?.class.name)}"})
 
     if (exhausted) return
-    if (!initCurrentWriter(node)) return
+    if (!initCurrentWriter()) return
 
     innerWrite(output, node)
 
@@ -338,7 +330,7 @@ data class extends TokenWriter {
   }
 
   override public writePrimitiveTokens(WriterOutputStream output, Node node) => true {
-    initCurrentWriter(node)
+    initCurrentWriter()
 
     while (!currentWriter.consumesNode()) {
       log.info({"|
