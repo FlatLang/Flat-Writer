@@ -61,6 +61,7 @@ abstract class {
       })
 
       nodeStream.on("close", {
+        rootWriter.exhaust(outputStream)
         log.infoFunc({"Wrote: #{magenta(outputStream.output)}"})
         log.traceFunc({"NodeResult EventStream closed"})
         stream.emit("close")
