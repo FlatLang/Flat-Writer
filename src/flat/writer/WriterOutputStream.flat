@@ -10,7 +10,7 @@ class {
   visible var String output = ""
 
   public writeString(String value = "") {
-    log.infoFunc({"|
+    log.info({"|
       Writing String: #{value}
         output: #{output}
       |"})
@@ -18,7 +18,7 @@ class {
   }
 
   public writeToken(Token token) {
-    log.infoFunc({"|
+    log.info({"|
       Writing Token: #{token}
         output: #{output}
       |"})
@@ -26,7 +26,7 @@ class {
   }
 
   public writeTokens(Token[] tokens) {
-    log.infoFunc({"|
+    log.info({"|
       Writing Tokens: #{tokens}
         output: #{output}
       |"})

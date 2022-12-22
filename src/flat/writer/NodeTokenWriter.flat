@@ -22,13 +22,13 @@ data class extends TokenWriter {
     if (writer == null) searchWriter(node)
     if (writer == null) return false
 
-    log.infoFunc({"Checking node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())}"})
+    log.info({"Checking node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())}"})
 
     Logger.increaseTab()
     let valid = writer.validNode(node)
     Logger.decreaseTab()
 
-    log.infoFunc({"|
+    log.info({"|
       Checked node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())}
         valid: #{valid}
       |"})
@@ -46,13 +46,13 @@ data class extends TokenWriter {
   override public consumesNode() => true
 
   override public exhaust(WriterOutputStream output) => true {
-    log.infoFunc({"Ending current writer"})
+    log.info({"Ending current writer"})
 
     if (writer) {
       Logger.increaseTab()
       if (!writer.exhaust(output)) {
         Logger.decreaseTab()
-        log.infoFunc({"|
+        log.info({"|
           Writer not exhausted. Returning false
             pattern: #{magenta(writer.pattern.toPatternString())}
             wasRepeat: #{wasRepeat}
@@ -78,7 +78,7 @@ data class extends TokenWriter {
       searchWriter(node)
 
       if (!writer) {
-        log.infoFunc({"Unable to determine writer for Node pattern for node type #{green(node.class.name)}. Exhausted"})
+        log.info({"Unable to determine writer for Node pattern for node type #{green(node.class.name)}. Exhausted"})
         exhausted = true
         return
       }
@@ -88,7 +88,7 @@ data class extends TokenWriter {
   }
 
   innerWrite(WriterOutputStream output, Node node) {
-    log.infoFunc({"|
+    log.info({"|
       Writing node #{green(node.class.name)} to writer #{green(writer.class.name)}
         pattern: #{magenta(writer.pattern.toPatternString())}
       |"})

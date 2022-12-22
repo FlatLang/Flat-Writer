@@ -20,7 +20,7 @@ class TestOutputStream extends WriterOutputStream {
 
   override public writeString(String value = "") {
     buffer.add(value)
-    log.infoFunc({"|
+    log.info({"|
       Writing String: #{value}
         output: #{output}
       |"})
@@ -28,7 +28,7 @@ class TestOutputStream extends WriterOutputStream {
 
   override public writeToken(Token token) {
     buffer.add(token)
-    log.infoFunc({"|
+    log.info({"|
       Writing Token: #{token}
         output: #{output}
       |"})
@@ -36,7 +36,7 @@ class TestOutputStream extends WriterOutputStream {
 
   override public writeTokens(Token[] tokens) {
     buffer.addAll(tokens)
-    log.infoFunc({"|
+    log.info({"|
       Writing Tokens: #{tokens}
         output: #{output}
       |"})

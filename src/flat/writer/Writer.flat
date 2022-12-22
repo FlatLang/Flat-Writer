@@ -21,12 +21,12 @@ abstract class {
 
     return EventStream(true).on("start", (data, stream) => {
       nodeStream.on<NodeResult>("data", (nodeResult) => {
-        log.traceFunc({"Received data from NodeResult EventStream: #{nodeResult.node}"})
+        log.trace({"Received data from NodeResult EventStream: #{nodeResult.node}"})
 
         let count = nodeResult.context ? nodeResult.context.parserStack.count : 0
 
         if (count > lastCount) {
-          log.infoFunc({"|
+          log.info({"|
             #{underscore("Encountered child")}:
               node: #{cyan(nodeResult.node.class.name)}
               exhausted: #{rootWriter.exhausted}
@@ -34,14 +34,14 @@ abstract class {
             |"})
         } else if (count < lastCount) {
           rootWriter.exhaust(outputStream)
-          log.infoFunc({"|
+          log.info({"|
             #{underscore("Encountered parent")}:
               node: #{cyan(nodeResult.node.class.name)}
               exhausted: #{rootWriter.exhausted}
               parserStack: [#{nodeResult.context?.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
             |"})
         } else {
-          log.infoFunc({"|
+          log.info({"|
             #{underscore("Encountered sibling")}:
               node: #{cyan(nodeResult.node.class.name)}
               exhausted: #{rootWriter.exhausted}
@@ -56,14 +56,14 @@ abstract class {
       })
 
       nodeStream.on<String>("error", (error) => {
-        log.traceFunc({"Received error from NodeResult EventStream: #{error}"})
+        log.trace({"Received error from NodeResult EventStream: #{error}"})
         stream.emit("error", error)
       })
 
       nodeStream.on("close", {
         rootWriter.exhaust(outputStream)
-        log.infoFunc({"Wrote: #{magenta(outputStream.output)}"})
-        log.traceFunc({"NodeResult EventStream closed"})
+        log.info({"Wrote: #{magenta(outputStream.output)}"})
+        log.trace({"NodeResult EventStream closed"})
         stream.emit("close")
       })
     })

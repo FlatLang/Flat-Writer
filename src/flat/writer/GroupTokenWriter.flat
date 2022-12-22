@@ -26,32 +26,32 @@ data class extends TokenWriter {
   lazy ArrayIterator<TokenWriter> iterator => writers.iterator
 
   override public validNodes(Node[] nodes, Bool allowPartial = false) => true {
-    log.traceFunc({"Checking if nodes are valid [#{nodes.map(n => green(n.class.name)).join(", ")}] for pattern #{magenta(pattern.toPatternString())}"})
+    log.trace({"Checking if nodes are valid [#{nodes.map(n => green(n.class.name)).join(", ")}] for pattern #{magenta(pattern.toPatternString())}"})
     let it = writers.filter({ _.consumesNode() }).iterator
 
     for (node in nodes) {
       if (!it.hasNext) {
-        log.traceFunc({"No more writers. Returning false"})
+        log.trace({"No more writers. Returning false"})
         return false
       }
       it.stepNext
 
-      log.traceFunc({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
+      log.trace({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
       Logger.increaseTab()
       if (!it.current.validNode(node)) {
         Logger.decreaseTab()
-        log.traceFunc({"Node #{green(node.class.name)} is not valid"})
+        log.trace({"Node #{green(node.class.name)} is not valid"})
         if (!it.hasNext || !it.current.pattern.optional) return false
 
         it.stepNext
-        log.traceFunc({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
+        log.trace({"Checking node #{green(node.class.name)} against pattern #{magenta(it.current.pattern.toPatternString())}"})
         Logger.increaseTab()
       }
       Logger.decreaseTab()
     }
 
     if (allowPartial) {
-      log.traceFunc({"Allows partial match. Returning true"})
+      log.trace({"Allows partial match. Returning true"})
       return true
     }
 
@@ -59,12 +59,12 @@ data class extends TokenWriter {
       it.stepNext
 
       if (!it.current.pattern.optional && it.current.requiresNode()) {
-        log.traceFunc({"Missing required nodes for pattern #{magenta(pattern.toPatternString())}"})
+        log.trace({"Missing required nodes for pattern #{magenta(pattern.toPatternString())}"})
         return false
       }
     }
 
-    log.traceFunc({"Nodes are valid for pattern #{magenta(pattern.toPatternString())}"})
+    log.trace({"Nodes are valid for pattern #{magenta(pattern.toPatternString())}"})
   }
 
   override public consumesNode() -> Bool {
@@ -76,15 +76,15 @@ data class extends TokenWriter {
   }
 
   override public exhaust(WriterOutputStream output) => true {
-    log.infoFunc({"Ending current writer #{magenta(pattern.toPatternString())}"})
+    log.info({"Ending current writer #{magenta(pattern.toPatternString())}"})
 
     if (!currentWriter) {
-      log.infoFunc({"|
+      log.info({"|
         No current writer
           wasRepeat: #{wasRepeat}
         |"})
     } else if (currentWriter.requiresNode()) {
-      log.infoFunc({"|
+      log.info({"|
         Current writer requires node
           pattern: #{magenta(currentWriter.pattern.toPatternString())}
           wasRepeat: #{wasRepeat}
@@ -93,7 +93,7 @@ data class extends TokenWriter {
       Logger.increaseTab()
       if (!currentWriter.exhaust(output)) {
         Logger.decreaseTab()
-        log.infoFunc({"|
+        log.info({"|
           Current writer is not exhausted. Returning false
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
             wasRepeat: #{wasRepeat}
@@ -114,7 +114,7 @@ data class extends TokenWriter {
         if (currentWriter.pattern.optional) continue
         if (currentWriter.exhaust(output)) continue
         Logger.DEFAULT_LINE_PREFIX = prefix
-        log.infoFunc({"|
+        log.info({"|
           Current required writer requires node. Returning false
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
             wasRepeat: #{wasRepeat}
@@ -127,7 +127,7 @@ data class extends TokenWriter {
 
       if (!successfulEnd) {
         Logger.DEFAULT_LINE_PREFIX = prefix
-        log.infoFunc({"|
+        log.info({"|
           Current writer is not exhausted. Returning false
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
             wasRepeat: #{wasRepeat}
@@ -137,7 +137,7 @@ data class extends TokenWriter {
     }
     Logger.DEFAULT_LINE_PREFIX = prefix
 
-    log.infoFunc({"|
+    log.info({"|
       Successfully exhausted writer
         pattern: #{magenta(pattern.toPatternString())}
       |"})
@@ -151,7 +151,7 @@ data class extends TokenWriter {
   nextWriter() => currentWriter {
     currentWriter = iterator.stepNext
     wasRepeat = false
-    log.infoFunc({"|
+    log.info({"|
       Switched to next writer pattern: #{magenta(currentWriter.pattern.toPatternString())}
         pattern: #{magenta(pattern.toPatternString())}
         wasRepeat: #{wasRepeat}
@@ -159,7 +159,7 @@ data class extends TokenWriter {
   }
 
   repeatWriter() {
-    log.traceFunc({"Repeating currentWriter: " + magenta(currentWriter.pattern.toPatternString())})
+    log.trace({"Repeating currentWriter: " + magenta(currentWriter.pattern.toPatternString())})
     currentWriter = currentWriter.pattern.getWriter()
     wasRepeat = true
   }
@@ -171,62 +171,62 @@ data class extends TokenWriter {
   validNode(Node node, Bool topLevel) -> Bool {
     if (node == null) return false
     if (currentWriter == null && super.validNode(node)) {
-      log.infoFunc({"Valid node for writer #{magenta(pattern.toPatternString())}"})
+      log.info({"Valid node for writer #{magenta(pattern.toPatternString())}"})
       return true
     }
     if (currentWriter == null && !bareNodePattern) return false
     if (currentWriter == null && !hasNextWriter()) return false
     if (currentWriter == null) {
-      log.infoFunc({"Current writer is null in validNode, getting next writer"})
+      log.info({"Current writer is null in validNode, getting next writer"})
       nextWriter()
     }
 
-    log.infoFunc({"|
+    log.info({"|
       Checking node type #{green(node.class.name)} against writer #{green(currentWriter.class.name)} #{magenta(currentWriter.pattern.toPatternString())}
         consumesNode: #{currentWriter.consumesNode()}
       |"})
 
     if (validCurrentWriter(node)) {
-      log.infoFunc({"Valid node [#{iterator.position}] for writer #{magenta(currentWriter.pattern.toPatternString())}"})
+      log.info({"Valid node [#{iterator.position}] for writer #{magenta(currentWriter.pattern.toPatternString())}"})
       return true
     } else {
       currentWriter.reset()
       if (currentWriter.bareNodePattern && !currentWriter.consumesNode()) {
-        log.infoFunc({"Bare node does not consume any nodes. Writing primitive tokens #{magenta(currentWriter.pattern.toPatternString())}"})
+        log.info({"Bare node does not consume any nodes. Writing primitive tokens #{magenta(currentWriter.pattern.toPatternString())}"})
         currentWriter.writePrimitiveTokens(buffer, node)
       }
     }
     if (!hasNextWriter()) {
-      log.infoFunc({"No more writers. Not valid #{magenta(currentWriter.pattern.toPatternString())}"})
-      log.infoFunc({"Clearing buffered data: #{buffer.buffer}"})
+      log.info({"No more writers. Not valid #{magenta(currentWriter.pattern.toPatternString())}"})
+      log.info({"Clearing buffered data: #{buffer.buffer}"})
       buffer.clear()
       return false
     }
 
     let writer = currentWriter
 
-    log.infoFunc({"Node #{green(node.class.name)} is not valid for current writer. Checking nextWriter"})
+    log.info({"Node #{green(node.class.name)} is not valid for current writer. Checking nextWriter"})
     nextWriter()
 
     if (validNode(node, false)) {
       if (topLevel) {
-        log.infoFunc({"Top level validation. Resetting current writer"})
+        log.info({"Top level validation. Resetting current writer"})
         currentWriter.reset()
       }
-      log.infoFunc({"|
+      log.info({"|
         Found valid writer [#{iterator.position}] for node #{magenta(currentWriter.pattern.toPatternString())}
           buffer: #{buffer.buffer}
         |"})
 
       return true
     } else {
-      log.infoFunc({"|
+      log.info({"|
         Node #{green(node.class.name)} is not valid for writer.
           pattern: #{magenta(currentWriter.pattern.toPatternString())}
           wasRepeat: #{currentWriter.wasRepeat}
         |"})
       currentWriter = writer
-      log.infoFunc({"Clearing buffered data: #{buffer.buffer}"})
+      log.info({"Clearing buffered data: #{buffer.buffer}"})
       buffer.clear()
       return false
     }
@@ -248,7 +248,7 @@ data class extends TokenWriter {
   validCurrentWriter(Node node) -> Bool {
     Logger.increaseTab()
     let currentValid = currentWriter.validNode(node)
-    log.infoFunc({"|
+    log.info({"|
       validCurrentWriter:
         valid: #{currentValid}
         pattern: #{magenta(currentWriter.pattern.toPatternString())}
@@ -269,13 +269,13 @@ data class extends TokenWriter {
       if (currentWriter.pattern.repeat) {
         currentWriter.reset()
         wasRepeat = true
-        log.infoFunc({"|
+        log.info({"|
           Repeating current writer
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
             wasRepeat: #{currentWriter.wasRepeat}
           |"})
       } else if (hasNextWriter()) {
-        log.infoFunc({"Current writer is exhausted, getting next writer"})
+        log.info({"Current writer is exhausted, getting next writer"})
         nextWriter()
       } else {
         exhausted = true
@@ -285,7 +285,7 @@ data class extends TokenWriter {
 
   innerWrite(WriterOutputStream output, Node node) {
     if (buffer.buffer.isNotEmpty) {
-      log.infoFunc({"Writing buffered data: #{buffer.buffer}"})
+      log.info({"Writing buffered data: #{buffer.buffer}"})
       buffer.buffer.forEach({ output.writeObject(_) })
       buffer.clear()
     }
@@ -294,7 +294,7 @@ data class extends TokenWriter {
       !bareNodePattern &&
       currentWriter.consumesNode() &&
       super.validNode(node)) {
-      log.infoFunc({"Matched parent node. Skipping write"})
+      log.info({"Matched parent node. Skipping write"})
       return
     }
 
@@ -306,18 +306,18 @@ data class extends TokenWriter {
       if (!hasNextWriter() || !iterator.next.validNode(node)) {
         buffer.clear()
         parentNode = node
-        log.infoFunc({"|
+        log.info({"|
           Node #{green(node?.class.name)} is not valid for current writer #{green(currentWriter.class.name)}. Awaiting child node
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
             wasRepeat: #{currentWriter.wasRepeat}
           |"})
         return
       }
-      log.infoFunc({"Current writer is not valid for node, getting next writer"})
+      log.info({"Current writer is not valid for node, getting next writer"})
       nextWriter()
     }
 
-    log.infoFunc({"|
+    log.info({"|
       Writing node #{green(node?.class.name)} to currentWriter #{green(currentWriter.class.name)}
         pattern: #{magenta(currentWriter.pattern.toPatternString())}
         wasRepeat: #{currentWriter.wasRepeat}
@@ -331,7 +331,7 @@ data class extends TokenWriter {
     initCurrentWriter()
 
     while (!currentWriter.consumesNode()) {
-      log.infoFunc({"|
+      log.info({"|
         Writing primitive Token to currentWriter #{green(currentWriter.class.name)}
           pattern: #{magenta(currentWriter.pattern.toPatternString())}
           wasRepeat: #{currentWriter.wasRepeat}
@@ -344,7 +344,7 @@ data class extends TokenWriter {
         return false
       }
 
-      log.infoFunc({"Wrote primitive tokens for current writer, getting next writer"})
+      log.info({"Wrote primitive tokens for current writer, getting next writer"})
       nextWriter()
     }
   }
