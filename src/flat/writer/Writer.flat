@@ -33,6 +33,7 @@ abstract class {
               parserStack: [#{nodeResult.context?.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
             |"})
         } else if (count < lastCount) {
+          rootWriter.exhaust(outputStream)
           log.infoFunc({"|
             #{underscore("Encountered parent")}:
               node: #{cyan(nodeResult.node.class.name)}
