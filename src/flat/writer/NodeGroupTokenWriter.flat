@@ -149,6 +149,8 @@ data class extends TokenWriter {
   }
 
   override public write(WriterOutputStream output, Node node) {
+    dirty = true
+
     if (currentWriter) {
       log.info({"|
         Checking node type #{green(node.class.name)} validity for currentWriter

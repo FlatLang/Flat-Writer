@@ -127,6 +127,8 @@ data class extends TokenWriter {
   }
 
   override public write(WriterOutputStream output, Node node) {
+    dirty = true
+
     if (exhausted) return
     if (writer == null && !searchWriter(node)) return
 

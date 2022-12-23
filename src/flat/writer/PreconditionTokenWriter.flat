@@ -9,6 +9,7 @@ data class extends TokenWriter {
   override public validNode(Node node) => true
 
   override public write(WriterOutputStream output, Node node) {
+    dirty = true
     innerWrite(output, node)
   }
 

@@ -190,10 +190,15 @@ data class extends TokenWriter {
       log.info({"Valid node [#{iterator.position}] for writer #{magenta(currentWriter.pattern.toPatternString())}"})
       return true
     } else {
-      currentWriter.reset()
       if (currentWriter.bareNodePattern && !currentWriter.consumesNode()) {
+        currentWriter.reset()
         log.info({"Bare node does not consume any nodes. Writing primitive tokens #{magenta(currentWriter.pattern.toPatternString())}"})
         currentWriter.writePrimitiveTokens(buffer, node)
+      } else if (!currentWriter.dirty && !currentWriter.pattern.optional) {
+        log.info({"Current writer is not optional. Returning false #{magenta(currentWriter.pattern.toPatternString())}"})
+        return false
+      } else {
+        currentWriter.reset()
       }
     }
     if (!hasNextWriter()) {
@@ -233,15 +238,15 @@ data class extends TokenWriter {
   }
 
   initCurrentWriter() => true {
-    if (!currentWriter) {
-      log.info({"Initializing current writer"})
-      if (hasNextWriter()) {
-        nextWriter()
-      } else {
-        log.trace({"No more writers. Exhausted"})
-        exhausted = true
-        return false
-      }
+    if (currentWriter) return true
+
+    log.info({"Initializing current writer"})
+    if (hasNextWriter()) {
+      nextWriter()
+    } else {
+      log.trace({"No more writers. Exhausted"})
+      exhausted = true
+      return false
     }
   }
 
@@ -261,6 +266,8 @@ data class extends TokenWriter {
 
   override public write(WriterOutputStream output, Node node) {
     log.info({"Attempting to write node #{green(node?.class.name)}"})
+
+    dirty = true
 
     if (exhausted) return
     if (!initCurrentWriter()) return

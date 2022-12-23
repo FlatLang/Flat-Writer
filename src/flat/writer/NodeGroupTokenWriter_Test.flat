@@ -87,6 +87,7 @@ testable class {
       ClassNode(type: ident("class")),
       IdentifierNode(name: ident("Bob")),
     ])
+    writer.exhaust()
     writer.writeAll([
       FieldNode(),
       TypeNode(name: ident("String")),

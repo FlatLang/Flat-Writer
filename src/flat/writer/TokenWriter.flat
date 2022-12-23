@@ -15,6 +15,9 @@ abstract data class {
   var Bool _exhausted = false
   visible var Bool exhausted <=> _exhausted
 
+  var Bool _dirty = false
+  visible var Bool dirty <=> _dirty
+
   var Bool wasRepeat = false
 
   lazy Bool bareNodePattern => pattern.getNodeType() == Node.class
@@ -110,6 +113,7 @@ abstract data class {
 
   public reset() {
     _exhausted = false
+    _dirty = false
     wasRepeat = false
 
     buffer.clear()

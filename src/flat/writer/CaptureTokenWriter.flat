@@ -7,6 +7,8 @@ data class extends TokenWriter {
   CaptureTokenPattern pattern
 
   override public write(WriterOutputStream output, Node node) {
+    dirty = true
+
     innerWrite(output, node)
   }
 
