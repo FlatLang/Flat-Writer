@@ -274,21 +274,21 @@ data class extends TokenWriter {
 
     innerWrite(output, node)
 
-    if (currentWriter.exhausted) {
-      if (currentWriter.pattern.repeat) {
-        currentWriter.reset()
-        wasRepeat = true
-        log.info({"|
-          Repeating current writer
-            pattern: #{magenta(currentWriter.pattern.toPatternString())}
-            wasRepeat: #{currentWriter.wasRepeat}
-          |"})
-      } else if (hasNextWriter()) {
-        log.info({"Current writer is exhausted, getting next writer"})
-        nextWriter()
-      } else {
-        exhausted = true
-      }
+    if (!currentWriter.exhausted) return
+
+    if (currentWriter.pattern.repeat) {
+      currentWriter.reset()
+      wasRepeat = true
+      log.info({"|
+        Repeating current writer
+          pattern: #{magenta(currentWriter.pattern.toPatternString())}
+          wasRepeat: #{currentWriter.wasRepeat}
+        |"})
+    } else if (hasNextWriter()) {
+      log.info({"Current writer is exhausted, getting next writer"})
+      nextWriter()
+    } else {
+      exhausted = true
     }
   }
 
