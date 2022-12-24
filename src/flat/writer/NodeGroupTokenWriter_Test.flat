@@ -627,6 +627,24 @@ testable class {
     expect(writer.exhausted).toBe(true)
   }
 
+  test `can write assignment to an array initializer`() {
+    let outputStream = TestOutputStream()
+    let pattern = NodeGroupTokenPattern([IdentifierParser()])
+    let writer = NodeGroupTokenWriter(pattern, outputStream)
+
+    writer.writeStatement([
+      IdentifierNode(name: ident("local")),
+      AssignmentNode(),
+      ArrayInitializerNode(),
+      IdentifierNode(name: ident("bob")),
+    ])
+
+    expect(outputStream.buffer).toBe([
+      ident("local"), sym("="), sym("["), ident("bob"), sym("]"),
+    ])
+    expect(writer.exhausted).toBe(false)
+  }
+
   ident(String value) => Token(value: value, type: Token.Type.IDENTIFIER)
   sym(String value) => Token(value: value, type: Token.Type.SYMBOL)
   str(String value) => Token(value: value, type: Token.Type.STRING)

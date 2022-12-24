@@ -350,6 +350,12 @@ data class extends TokenWriter {
       Logger.decreaseTab()
 
       if (!currentWriter.exhausted || !hasNextWriter()) {
+        log.info({"No more writers. Returning false"})
+        return false
+      }
+
+      if (iterator.position == 1 && !bareNodePattern && super.validNode(node)) {
+        log.info({"Consumed node as parent node. Returning false"})
         return false
       }
 
