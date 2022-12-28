@@ -103,9 +103,9 @@ data class extends TokenWriter {
       Logger.decreaseTab()
     }
 
-    let prefix = Logger.DEFAULT_LINE_PREFIX
+    let prefix = Logger.defaultLinePrefix
     while (hasNextWriter()) {
-      Logger.DEFAULT_LINE_PREFIX = prefix
+      Logger.defaultLinePrefix = prefix
       Logger.increaseTab()
       nextWriter()
 
@@ -113,7 +113,7 @@ data class extends TokenWriter {
       if (currentWriter.requiresNode()) {
         if (currentWriter.pattern.optional) continue
         if (currentWriter.exhaust(output)) continue
-        Logger.DEFAULT_LINE_PREFIX = prefix
+        Logger.defaultLinePrefix = prefix
         log.info({"|
           Current required writer requires node. Returning false
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
@@ -126,7 +126,7 @@ data class extends TokenWriter {
       let successfulEnd = currentWriter.exhaust(output)
 
       if (!successfulEnd) {
-        Logger.DEFAULT_LINE_PREFIX = prefix
+        Logger.defaultLinePrefix = prefix
         log.info({"|
           Current writer is not exhausted. Returning false
             pattern: #{magenta(currentWriter.pattern.toPatternString())}
@@ -135,7 +135,7 @@ data class extends TokenWriter {
         return false
       }
     }
-    Logger.DEFAULT_LINE_PREFIX = prefix
+    Logger.defaultLinePrefix = prefix
 
     log.info({"|
       Successfully exhausted writer
