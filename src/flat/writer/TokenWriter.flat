@@ -98,7 +98,7 @@ abstract data class {
   }
 
   public exhaust(WriterOutputStream output) => true {
-    log.info({"Ending current writer"})
+    log.info("Ending current writer")
   }
 
   public validNode(Node node) => !bareNodePattern && node.class.isOfType(pattern.getNodeType())
@@ -107,7 +107,7 @@ abstract data class {
   public consumesNode() => !bareNodePattern
   public requiresNode() => !pattern.optional && consumesNode()
   public writePrimitiveTokens(WriterOutputStream output, Node node) => true {
-    log.info({"Writing primitive Tokens #{magenta(pattern.toPatternString())}"})
+    log.info("Writing primitive Tokens #{magenta(pattern.toPatternString())}")
     write(output, node)
   }
 

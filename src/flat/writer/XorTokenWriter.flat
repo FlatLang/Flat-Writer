@@ -39,16 +39,16 @@ data class extends TokenWriter {
   }
 
   override public exhaust(WriterOutputStream output) => true {
-    log.info({"Ending current writer"})
+    log.info("Ending current writer")
 
     if (!writer) {
-      log.info({"Doesnt have writer. Searching for one"})
+      log.info("Doesnt have writer. Searching for one")
       Logger.increaseTab()
       writer = writers.firstWhere({ _.validNodes(nodeBuffer) })
       Logger.decreaseTab()
 
       if (!writer) {
-        log.warn({"Didnt find writer"})
+        log.warn("Didnt find writer")
         return true
       }
 
@@ -86,7 +86,7 @@ data class extends TokenWriter {
           node.class.isOfType(writer.pattern.getNodeType())
       })
       if (writer) {
-        log.info({"Found match for child with valid node #{green(node.class.name)}: #{writer.class.name}"})
+        log.info("Found match for child with valid node #{green(node.class.name)}: #{writer.class.name}")
         return writer
       }
     }
@@ -111,18 +111,18 @@ data class extends TokenWriter {
   }
 
   searchWriterForNodeBuffer() => writer {
-    log.info({"Searching for match for buffer [#{nodeBuffer.map(n => green(n.class.name)).join(", ", 25)}]"})
+    log.info("Searching for match for buffer [#{nodeBuffer.map(n => green(n.class.name)).join(", ", 25)}]")
 
     Logger.increaseTab()
     if (nodeBuffer.isEmpty) {
       Logger.decreaseTab()
-      log.info({"Did not find a match"})
+      log.info("Did not find a match")
     } else if (writer = writers.findOne({ _.validNodes(nodeBuffer, true) })) {
       Logger.decreaseTab()
-      log.info({"Found match: #{writer.class.name} #{magenta(writer.pattern.toPatternString())}"})
+      log.info("Found match: #{writer.class.name} #{magenta(writer.pattern.toPatternString())}")
     } else {
       Logger.decreaseTab()
-      log.info({"Did not find a match"})
+      log.info("Did not find a match")
     }
   }
 
@@ -136,7 +136,7 @@ data class extends TokenWriter {
   }
 
   writeBufferedNodes(WriterOutputStream output) {
-    log.info({"Writing buffered nodes: [#{nodeBuffer.map(n => green(n.class.name)).join(", ", 25)}]"})
+    log.info("Writing buffered nodes: [#{nodeBuffer.map(n => green(n.class.name)).join(", ", 25)}]")
     nodeBuffer.forEach({ writer.write(output, _) })
     nodeBuffer = null
   }
@@ -147,10 +147,10 @@ data class extends TokenWriter {
       writeBufferedNodes(output)
     }
 
-    log.info({"|
+    log.info("|
       Writing node #{green(node.class.name)} to writer #{green(writer.class.name)}
         pattern: #{magenta(writer.pattern.toPatternString())}
-      |"})
+      |")
     Logger.increaseTab()
     writer.write(output, node)
     Logger.decreaseTab()

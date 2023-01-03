@@ -10,26 +10,26 @@ class {
   visible var String output = ""
 
   public writeString(String value = "") {
-    log.info({"|
+    log.info("|
       Writing String: #{value}
         output: #{output}
-      |"})
+      |")
     output += value + " "
   }
 
   public writeToken(Token token) {
-    log.info({"|
+    log.info("|
       Writing Token: #{token}
         output: #{output}
-      |"})
+      |")
     output += token.value + " "
   }
 
   public writeTokens(Token[] tokens) {
-    log.info({"|
+    log.info("|
       Writing Tokens: #{tokens}
         output: #{output}
-      |"})
+      |")
     output += tokens.map({ _.value }).stitch(" ")
   }
 

@@ -22,16 +22,16 @@ data class extends TokenWriter {
     if (writer == null) searchWriter(node)
     if (writer == null) return false
 
-    log.info({"Checking node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())}"})
+    log.info("Checking node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())}")
 
     Logger.increaseTab()
     let valid = writer.validNode(node)
     Logger.decreaseTab()
 
-    log.info({"|
+    log.info("|
       Checked node type #{green(node.class.name)} against writer #{magenta(writer.pattern.toPatternString())}
         valid: #{valid}
-      |"})
+      |")
 
     return valid
   }
@@ -46,17 +46,17 @@ data class extends TokenWriter {
   override public consumesNode() => true
 
   override public exhaust(WriterOutputStream output) => true {
-    log.info({"Ending current writer"})
+    log.info("Ending current writer")
 
     if (writer) {
       Logger.increaseTab()
       if (!writer.exhaust(output)) {
         Logger.decreaseTab()
-        log.info({"|
+        log.info("|
           Writer not exhausted. Returning false
             pattern: #{magenta(writer.pattern.toPatternString())}
             wasRepeat: #{wasRepeat}
-          |"})
+          |")
         return false
       }
       Logger.decreaseTab()
@@ -80,7 +80,7 @@ data class extends TokenWriter {
       searchWriter(node)
 
       if (!writer) {
-        log.info({"Unable to determine writer for Node pattern for node type #{green(node.class.name)}. Exhausted"})
+        log.info("Unable to determine writer for Node pattern for node type #{green(node.class.name)}. Exhausted")
         exhausted = true
         return
       }
@@ -90,10 +90,10 @@ data class extends TokenWriter {
   }
 
   innerWrite(WriterOutputStream output, Node node) {
-    log.info({"|
+    log.info("|
       Writing node #{green(node.class.name)} to writer #{green(writer.class.name)}
         pattern: #{magenta(writer.pattern.toPatternString())}
-      |"})
+      |")
     Logger.increaseTab()
     writer.write(output, node)
     Logger.decreaseTab()

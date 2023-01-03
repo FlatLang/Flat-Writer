@@ -29,20 +29,20 @@ data class extends TokenWriter {
   override public validNode(Node node) -> Bool {
     if (node == null) return false
     if (currentWriter == null) {
-      log.info({"Current writer is null. Searching current writer"})
+      log.info("Current writer is null. Searching current writer")
       searchCurrentWriter(node)
 
       if (currentWriter) {
-        log.info({"Current writer found. Valid"})
+        log.info("Current writer found. Valid")
         return true
       } else {
-        log.info({"Current writer not found. Invalid"})
+        log.info("Current writer not found. Invalid")
         return false
       }
     }
     if (super.validNode(node)) return true
 
-    log.info({"Checking node type #{green(node.class.name)} against writer #{magenta(currentWriter?.pattern.toPatternString())}"})
+    log.info("Checking node type #{green(node.class.name)} against writer #{magenta(currentWriter?.pattern.toPatternString())}")
 
     Logger.increaseTab()
     let valid = currentWriter?.validNode(node)
@@ -54,34 +54,34 @@ data class extends TokenWriter {
   override public consumesNode() => true
 
   override public exhaust(WriterOutputStream output) => false {
-    log.info({"Ending current writer"})
+    log.info("Ending current writer")
 
     if (awaitingChild) {
-      log.info({"Was awaiting child. Returning false"})
+      log.info("Was awaiting child. Returning false")
       awaitingChild = false
       return false
     }
 
     if (!currentParser) {
       exhausted = true
-      log.info({"Ended whole node group"})
+      log.info("Ended whole node group")
       return true
     } else if (!currentWriter) {
       currentParser = null
-      log.info({"Ended statement"})
+      log.info("Ended statement")
       return false
     }
 
     Logger.increaseTab()
     if (!currentWriter.exhaust(output)) {
       Logger.decreaseTab()
-      log.info({"Current writer is not exhausted. Returning false"})
+      log.info("Current writer is not exhausted. Returning false")
       return false
     }
     Logger.decreaseTab()
     currentWriter = null
     currentParser = null
-    log.info({"Current writer is exhausted. Returning false"})
+    log.info("Current writer is exhausted. Returning false")
   }
 
   initMaps() {
@@ -95,7 +95,7 @@ data class extends TokenWriter {
 
           nodeWriter.getNodeTypes().forEach({ writerMap[_] = writer })
         } else {
-          log.warn({"Could not get node type for pattern #{magenta(pattern.toPatternString())}"})
+          log.warn("Could not get node type for pattern #{magenta(pattern.toPatternString())}")
         }
         return
       }
@@ -113,7 +113,7 @@ data class extends TokenWriter {
     }
 
     if (currentParser?.childParsers) {
-      log.info({"currentParser.childParsers: #{currentParser.childParsers.map(p => p.class.name).join(", ")}"})
+      log.info("currentParser.childParsers: #{currentParser.childParsers.map(p => p.class.name).join(", ")}")
       var newParser = currentParser.childParsers.firstWhere({ node.class == _.pattern.getNodeType() })
 
       if (!newParser) {
@@ -131,19 +131,19 @@ data class extends TokenWriter {
       return
     }
 
-    log.info({"Searching for writer for node type #{green(node.class.name)} against writers: #{writerMap.keys.map(c => green(c.name)).join(", ")}"})
+    log.info("Searching for writer for node type #{green(node.class.name)} against writers: #{writerMap.keys.map(c => green(c.name)).join(", ")}")
     currentWriter = writerMap[node.class]
     currentParser = parserMap[node.class]
 
     if (!currentWriter) {
-      log.info({"Did not find exact writer. Searching for isOfType"})
+      log.info("Did not find exact writer. Searching for isOfType")
       currentWriter = writerMap.firstWhere({ node.class.isOfType(_.key) })?.value
       currentParser = parserMap.firstWhere({ node.class.isOfType(_.key) })?.value
 
       if (!currentWriter) {
-        log.info({"Could not get writer for node type #{green(node.class.name)}"})
+        log.info("Could not get writer for node type #{green(node.class.name)}")
       } else {
-        log.info({"Got writer from isOfType #{green(writerMap.firstWhere(w => node.class.isOfType(w.key)).key.name)}"})
+        log.info("Got writer from isOfType #{green(writerMap.firstWhere(w => node.class.isOfType(w.key)).key.name)}")
       }
     }
   }
@@ -152,17 +152,17 @@ data class extends TokenWriter {
     dirty = true
 
     if (currentWriter) {
-      log.info({"|
+      log.info("|
         Checking node type #{green(node.class.name)} validity for currentWriter
           currentWriter.pattern: #{magenta(currentWriter.pattern.toPatternString())}
-        |"})
+        |")
       Logger.increaseTab()
       if (!currentWriter.validNode(node)) {
         Logger.decreaseTab()
-        log.info({"|
+        log.info("|
           Node #{green(node.class.name)} is not valid for currentWriter. Resetting current currentWriter
             currentWriter.pattern: #{magenta(currentWriter.pattern.toPatternString())}
-          |"})
+          |")
         currentWriter = null
         currentParser = null
       } else {
@@ -181,19 +181,19 @@ data class extends TokenWriter {
   }
 
   innerWrite(WriterOutputStream output, Node node) {
-    log.info({"|
+    log.info("|
       Writing node #{green(node.class.name)} to writer #{green(currentWriter.class.name)}
         pattern: #{magenta(currentWriter.pattern.toPatternString())}
-      |"})
+      |")
     Logger.increaseTab()
     currentWriter.write(output, node)
     Logger.decreaseTab()
 
     if (currentWriter.exhausted) {
       currentWriter = null
-      log.info({"Writer is exhausted"})
+      log.info("Writer is exhausted")
     } else {
-      log.info({"Writer is not exhausted"})
+      log.info("Writer is not exhausted")
     }
   }
 
