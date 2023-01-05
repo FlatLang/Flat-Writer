@@ -30,7 +30,7 @@ abstract class {
             #{underscore("Encountered child")}:
               node: #{cyan(nodeResult.node.class.name)}
               exhausted: #{rootWriter.exhausted}
-              parserStack: [#{nodeResult.context?.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
+              parserStack: [#{nodeResult.context?.parserStack.toArray().map({ green(_x.class.name) }).join(", ", 50)}]
             |")
         } else if (count < lastCount) {
           rootWriter.exhaust(outputStream)
@@ -38,14 +38,14 @@ abstract class {
             #{underscore("Encountered parent")}:
               node: #{cyan(nodeResult.node.class.name)}
               exhausted: #{rootWriter.exhausted}
-              parserStack: [#{nodeResult.context?.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
+              parserStack: [#{nodeResult.context?.parserStack.toArray().map({ green(_x.class.name) }).join(", ", 50)}]
             |")
         } else {
           log.info("|
             #{underscore("Encountered sibling")}:
               node: #{cyan(nodeResult.node.class.name)}
               exhausted: #{rootWriter.exhausted}
-              parserStack: [#{nodeResult.context?.parserStack.toArray().map(p => green(p.class.name)).join(", ", 50)}]
+              parserStack: [#{nodeResult.context?.parserStack.toArray().map({ green(_x.class.name) }).join(", ", 50)}]
             |")
         }
 

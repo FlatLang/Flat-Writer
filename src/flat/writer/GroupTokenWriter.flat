@@ -26,7 +26,7 @@ data class extends TokenWriter {
   lazy ArrayIterator<TokenWriter> iterator => writers.iterator
 
   override public validNodes(Node[] nodes, Bool allowPartial = false) => true {
-    log.trace("Checking if nodes are valid [#{nodes.map(n => green(n.class.name)).join(", ")}] for pattern #{magenta(pattern.toPatternString())}")
+    log.trace("Checking if nodes are valid [#{nodes.map({ green(_x.class.name) }).join(", ")}] for pattern #{magenta(pattern.toPatternString())}")
     let it = writers.filter({ _.consumesNode() }).iterator
 
     for (node in nodes) {
