@@ -10,11 +10,11 @@ class TestOutputStream extends WriterOutputStream {
   static Logger log = Logger(TestOutputStream.class)
 
   visible var Object[] buffer = Object[]
-  visible String output => buffer.map((value) => {
-    match value.class {
-      String.class => "<#{value.toString()}>"
-      Token.class => "<#{((Token)value).value}>"
-      default => throw Exception("Invalid object type '#{value.class.name}'")
+  visible String output => buffer.map({
+    match _x.class {
+      String.class => "<#{_x.toString()}>"
+      Token.class => "<#{((Token)_x).value}>"
+      default => throw Exception("Invalid object type '#{_x.class.name}'")
     }
   }).join()
 

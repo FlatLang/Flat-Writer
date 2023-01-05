@@ -85,8 +85,8 @@ data class extends TokenWriter {
   }
 
   initMaps() {
-    pattern.parsers.forEach((parser) => {
-      let pattern = parser.pattern
+    pattern.parsers.forEach({
+      let pattern = _x.pattern
       let writer = pattern.getWriter()
 
       if (pattern.getNodeType() == Node.class) {
@@ -101,7 +101,7 @@ data class extends TokenWriter {
       }
 
       writerMap[pattern.getNodeType()] = writer
-      parserMap[pattern.getNodeType()] = parser
+      parserMap[pattern.getNodeType()] = _x
     })
   }
 

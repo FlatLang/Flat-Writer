@@ -81,9 +81,9 @@ data class extends TokenWriter {
     }
 
     if (!nodeBuffer || nodeBuffer.isEmpty) {
-      writer = writers.firstWhere((writer) => {
-        return writer.pattern.getNodeType() != Node.class &&
-          node.class.isOfType(writer.pattern.getNodeType())
+      writer = writers.firstWhere({
+        return _x.pattern.getNodeType() != Node.class &&
+          node.class.isOfType(_x.pattern.getNodeType())
       })
       if (writer) {
         log.info("Found match for child with valid node #{green(node.class.name)}: #{writer.class.name}")

@@ -19,7 +19,7 @@ abstract class {
     var ParserBase lastParser = null
     var Int lastCount = 0
 
-    return EventStream(true).on("start", (data, stream) => {
+    return EventStream(true).on("start", (_, stream) => {
       nodeStream.on<NodeResult>("data", (nodeResult) => {
         log.trace("Received data from NodeResult EventStream: #{nodeResult.node}")
 
