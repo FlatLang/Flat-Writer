@@ -30,7 +30,7 @@ class {
       Writing Tokens: #{tokens}
         output: #{output}
       |")
-    output += tokens.map({ _.value }).stitch(" ")
+    output += tokens.map({ _.value }).stitchFront(" ")
   }
 
   public writeObject(Object value) {
