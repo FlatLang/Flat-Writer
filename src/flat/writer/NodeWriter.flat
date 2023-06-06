@@ -7,5 +7,5 @@ import flat/log/Logger
 import flat/eventstream/EventStream
 
 abstract class NodeWriter<NodeType extends Node> {
-  public abstract write(NodeType node, WriterOutputStream output)
+    public abstract write(NodeType node, WriterOutputStream output)
 }
